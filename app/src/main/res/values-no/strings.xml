@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="inventory_button">Beholdning</string>
+    <string name="walk_button">Gå</string>
+    <string name="trade_button">Handle</string>
+    <string name="ranking_button">Rangering</string>
+    <string name="profile_button">Profil</string>
+    <string name="help_button">Hjelp</string>
+    <string name="created_by">Utviklet av frodegill@gmail.com</string>
+
     <string name="domesticanimals_bronze">Gårdsdyr (bronse)</string>
     <string name="domesticanimals_silver">Gårdsdyr (sølv)</string>
     <string name="domesticanimals_gold">Gårdsdyr (gull)</string>

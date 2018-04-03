@@ -1,5 +1,13 @@
 <resources>
-    <string name="app_name">AnimalExchange</string>
+    <string name="app_name" translatable="false">AnimalExchange</string>
+
+    <string name="inventory_button">Inventory</string>
+    <string name="walk_button">Walk</string>
+    <string name="trade_button">Trade</string>
+    <string name="ranking_button">Ranking</string>
+    <string name="profile_button">Profile</string>
+    <string name="help_button">Help</string>
+    <string name="created_by">Created by frodegill@gmail.com</string>
 
     <string name="domesticanimals_bronze">Domestic animals (bronze)</string>
     <string name="domesticanimals_silver">Domestic animals (silver)</string>

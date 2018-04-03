@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_main_layout"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/inventory_button"
+        android:id="@+id/inventory_button"
+        android:onClick="onInventoryButtonClicked"
+        android:layout_weight="1"
+        android:layout_margin="3dp" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/walk_button"
+        android:id="@+id/walk_button"
+        android:onClick="onWalkButtonClicked"
+        android:layout_weight="1"
+        android:layout_margin="3dp" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/trade_button"
+        android:id="@+id/trade_button"
+        android:onClick="onTradeButtonClicked"
+        android:layout_weight="1"
+        android:layout_margin="3dp" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/ranking_button"
+        android:id="@+id/ranking_button"
+        android:onClick="onRankingButtonClicked"
+        android:layout_weight="1"
+        android:layout_margin="3dp" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/profile_button"
+        android:id="@+id/profile_button"
+        android:onClick="onProfileButtonClicked"
+        android:layout_weight="1"
+        android:layout_margin="3dp" />
+
+    <Button
+        android:id="@+id/help_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:onClick="onHelpButtonClicked"
+        android:text="@string/help_button"
+        android:layout_margin="3dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/created_by" />
+
+    <TextView
+        android:id="@+id/toast"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textColor="#ffcc0000"
+        android:textSize="16sp" />
+
+</LinearLayout>
