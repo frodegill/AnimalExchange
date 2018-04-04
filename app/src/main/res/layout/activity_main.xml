@@ -66,6 +66,13 @@
         android:text="@string/created_by" />
 
     <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/osmdroid_attribution"
+        android:gravity="center_horizontal"
+        android:textStyle="bold" />
+
+    <TextView
         android:id="@+id/toast"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

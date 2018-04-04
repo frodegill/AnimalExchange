@@ -8,6 +8,7 @@
     <string name="profile_button">Profile</string>
     <string name="help_button">Help</string>
     <string name="created_by">Created by frodegill@gmail.com</string>
+    <string name="osmdroid_attribution">Based on osmdroid</string>
 
     <string name="domesticanimals_bronze">Domestic animals (bronze)</string>
     <string name="domesticanimals_silver">Domestic animals (silver)</string>

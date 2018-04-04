@@ -8,6 +8,7 @@
     <string name="profile_button">Profil</string>
     <string name="help_button">Hjelp</string>
     <string name="created_by">Utviklet av frodegill@gmail.com</string>
+    <string name="osmdroid_attribution">Basert på osmdroid</string>
 
     <string name="domesticanimals_bronze">Gårdsdyr (bronse)</string>
     <string name="domesticanimals_silver">Gårdsdyr (sølv)</string>
