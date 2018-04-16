@@ -4,6 +4,9 @@ import android.content.Context;
 
 import org.dyndns.gill_roxrud.frodeg.animalexchange.activities.MapFragment;
 
+import java.util.Calendar;
+import java.util.TimeZone;
+
 
 public class GameState {
 
@@ -11,7 +14,7 @@ public class GameState {
 
     private final AnimalExchangeDBHelper db;
 
-    private final Point<Double> currentPos = new Point<>(MapFragment.EAST+1.0, MapFragment.NORTH+1.0);
+    private final Point<Double> currentPos = new Point<>(AnimalExchangeApplication.EAST+1.0, AnimalExchangeApplication.NORTH+1.0);
 
 
     private GameState() {
@@ -44,6 +47,11 @@ public class GameState {
 
     public void onPositionChangedT(MapFragment mapFragment, double x_pos, double y_pos) {
         currentPos.set(x_pos, y_pos);
+    }
+
+    public int getDay() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        return calendar.get(Calendar.YEAR)*366 + calendar.get(Calendar.DAY_OF_YEAR);
     }
 
 }

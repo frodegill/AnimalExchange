@@ -2,6 +2,7 @@ package org.dyndns.gill_roxrud.frodeg.animalexchange.logic;
 
 import android.util.SparseArray;
 
+import org.dyndns.gill_roxrud.frodeg.animalexchange.Point;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
 
 import java.security.MessageDigest;
@@ -13,10 +14,9 @@ import java.util.ArrayList;
  https://www.goodfreephotos.com/
 */
 
-public class AnimalManager {
+class AnimalManager {
 
     private static AnimalManager instance = null;
-    private static MessageDigest messageDigest = null;
 
     private final SparseArray<AnimalGroup> animalGroupMap = new SparseArray<>();
     private final ArrayList<AnimalGroup> animalGroupArray = new ArrayList<>();
@@ -24,7 +24,7 @@ public class AnimalManager {
     private final ArrayList<Animal> animalArray = new ArrayList<>();
 
 
-    public static AnimalManager getInstance() {
+    static AnimalManager getInstance() {
         if (instance == null) {
             instance = new AnimalManager();
             instance.initializeAnimalGroups();
@@ -209,16 +209,30 @@ public class AnimalManager {
         return null;
     }
 
-    long calculateDistributionValue(final int x, final int y, final int day) {
+    Point<Double> calculateAnimalOffset(final int day) {
+        MessageDigest messageDigest = createMessageDigest();
         if (messageDigest == null) {
-            try {
-                messageDigest = MessageDigest.getInstance("SHA-1");
-            } catch (NoSuchAlgorithmException e) {
-                return 0L;
-            }
+            return new Point<>(0.0, 0.0);
         }
 
-        messageDigest.reset();
+        try {
+            messageDigest.update(Integer.toString(day).getBytes("utf-8"));
+        } catch (Exception e) {
+            return new Point<>(0.0, 0.0);
+        }
+
+        long hash = getHash(messageDigest);
+        int randomX = (int)hash&0xFF;
+        int randomY = (int)(hash>>8)&0xFF;
+        return new Point<>((randomX/255.0)-0.5, (randomY/255.0)-0.5);
+    }
+
+    long calculateAnimalDistributionValue(final int x, final int y, final int day) {
+        MessageDigest messageDigest = createMessageDigest();
+        if (messageDigest == null) {
+            return 0L;
+        }
+
         long v;
         int b;
         for (int i=0; i<3; i++) {
@@ -233,11 +247,24 @@ public class AnimalManager {
                 messageDigest.update((byte)(b&0xFF));
             }
         }
+        return getHash(messageDigest);
+    }
+
+    private MessageDigest createMessageDigest() {
+        try {
+            return MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            return null;
+        }
+    }
+
+    private long getHash(final MessageDigest messageDigest) {
         byte hash[] = messageDigest.digest();
-        v = 0;
+        long v = 0L;
         for (int i=0; i<4; i++) {
             v = (v<<8) | (hash[i]&0xFF);
         }
         return v;
     }
+
 }

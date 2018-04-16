@@ -30,20 +30,6 @@ import org.osmdroid.views.overlay.ScaleBarOverlay;
 
 
 public class MapFragment extends Fragment implements LocationListener {
-    private static final long  LOCATION_UPDATE_INTERVAL = 30L;
-    private static final float LOCATION_UPDATE_DISTANCE = 25.0f;
-
-    public static final double NORTH = 90.0; //degrees
-    public static final double EAST = 180.0; //degrees
-    public static final double SOUTH = -90.0; //degrees
-    public static final double WEST = -180.0; //degrees
-    public static final double VER_DEGREES = NORTH-SOUTH;
-    public static final double HOR_DEGREES = EAST-WEST;
-
-    public static final double AVERAGE_RADIUS_OF_EARTH = 6371000; //meters
-    public static final double AVERAGE_CIRCUMFENCE_OF_EARTH = AVERAGE_RADIUS_OF_EARTH*2*Math.PI; //meters
-    public static final double MAX_NORTH_POS = 80.0; //degrees
-    public static final double MAX_SOUTH_POS = -80.0; //degrees
 
     private MapView mapView;
 
@@ -170,7 +156,10 @@ public class MapFragment extends Fragment implements LocationListener {
                 Toast.makeText(getContext(), "Failed to find a Location Provider (GPS)", Toast.LENGTH_LONG).show();
                 return;
             }
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_UPDATE_INTERVAL, LOCATION_UPDATE_DISTANCE, this);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                                                   AnimalExchangeApplication.LOCATION_UPDATE_INTERVAL,
+                                                   AnimalExchangeApplication.LOCATION_UPDATE_DISTANCE,
+                                                   this);
         }
     }
 
