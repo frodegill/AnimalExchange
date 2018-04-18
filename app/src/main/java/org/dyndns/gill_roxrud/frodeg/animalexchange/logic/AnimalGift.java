@@ -26,7 +26,7 @@ public class AnimalGift {
         }
 
         int value = Double.valueOf(HOR_GIFT_COUNT * ((x_pos-AnimalExchangeApplication.WEST)/AnimalExchangeApplication.HOR_DEGREES)).intValue();
-        return Math.max(value, HOR_GIFT_COUNT);
+        return Math.min(value, HOR_GIFT_COUNT);
     }
 
     public int ToVerticalGift(final double y_pos) {
@@ -37,7 +37,7 @@ public class AnimalGift {
         }
 
         int value = Double.valueOf(VER_GIFT_COUNT * ((y_pos-AnimalExchangeApplication.MAX_SOUTH_POS)/AnimalExchangeApplication.VER_ANIMAL_DEGREES)).intValue();
-        return Math.max(value, VER_GIFT_COUNT);
+        return Math.min(value, VER_GIFT_COUNT);
     }
 
     public static double FromHorizontalBonusGridF(final double x_grid) {

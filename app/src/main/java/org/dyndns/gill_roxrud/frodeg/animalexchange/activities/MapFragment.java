@@ -20,6 +20,7 @@ import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeDBHelper;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.overlays.AnimalGiftOverlay;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.overlays.MyLocationOverlay;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -69,6 +70,7 @@ public class MapFragment extends Fragment implements LocationListener {
         mapView.setTilesScaledToDpi(true);
 
         mapView.getOverlays().add(new CopyrightOverlay(AnimalExchangeApplication.getContext()));
+        mapView.getOverlays().add(new AnimalGiftOverlay());
         mapView.getOverlays().add(new MyLocationOverlay());
         mapView.getOverlays().add(new ScaleBarOverlay(mapView));
 
