@@ -1,9 +1,13 @@
 package org.dyndns.gill_roxrud.frodeg.animalexchange.logic;
 
 import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeDBHelper;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.InvalidPositionException;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.Point;
 import org.osmdroid.util.GeoPoint;
+
+import java.util.Set;
 
 
 public class AnimalGift {
@@ -14,8 +18,32 @@ public class AnimalGift {
     private int offsetDay = 0;
     private Point<Double> dailyOffset;
 
+    private int lastPurgeDay = 0;
+
+    private Set<Integer> giftsAwarded = null;
+    private int awardDay = 0;
+
 
     public AnimalGift() {
+    }
+
+    public boolean isAwardedT(final int key, final int day) {
+        try {
+            AnimalExchangeDBHelper db = GameState.getInstance().getDB();
+            if (lastPurgeDay < day) {
+                db.purgeOldAnimalGiftsT(day);
+                lastPurgeDay = day;
+            }
+
+            if (giftsAwarded==null || awardDay!=day)
+            {
+                giftsAwarded = db.fetchAwardedGifts(day);
+            }
+            return (giftsAwarded==null || giftsAwarded.contains(day));
+        }
+        catch(Exception e){
+            return true;
+        }
     }
 
     public int ToHorizontalGift(double x_pos) {

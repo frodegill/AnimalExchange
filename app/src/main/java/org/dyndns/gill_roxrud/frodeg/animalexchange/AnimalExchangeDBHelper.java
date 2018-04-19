@@ -8,10 +8,18 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.Toast;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
 
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME         = "AnimalExchange.db";
+
+    private static final String ANIMALGIFT_TABLE_NAME = "animalgift";
+    private static final String ANIMALGIFT_COLUMN_KEY = "key";
+    private static final String ANIMALGIFT_COLUMN_DAY = "day";
 
     private static final String PROPERTY_TABLE_NAME   = "properties";
     private static final String PROPERTY_COLUMN_KEY   = "key";
@@ -23,7 +31,7 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
 
 
     public AnimalExchangeDBHelper(Context context) {
-        super(context, DATABASE_NAME, null, 1);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
@@ -49,6 +57,10 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
             contentValues.put(PROPERTY_COLUMN_KEY, PROPERTY_ZOOM_LEVEL);
             contentValues.put(PROPERTY_COLUMN_VALUE, 11);
             successful &= (-1 != db.insert(PROPERTY_TABLE_NAME, null, contentValues));
+
+            db.execSQL("CREATE TABLE "+ANIMALGIFT_TABLE_NAME+"("+ANIMALGIFT_COLUMN_KEY+" INTEGER NOT NULL, "
+                                                                +ANIMALGIFT_COLUMN_DAY+" INTEGER NOT NULL, "
+                      +"PRIMARY KEY ("+ANIMALGIFT_COLUMN_KEY+","+ANIMALGIFT_COLUMN_DAY+"))");
         } catch (SQLException e) {
             successful = false;
             Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -59,6 +71,26 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        boolean successful = true;
+
+        if (oldVersion < DATABASE_VERSION) {
+            db.beginTransaction();
+        }
+
+        try {
+            if (oldVersion < 2) {
+                db.execSQL("CREATE TABLE "+ANIMALGIFT_TABLE_NAME+"("+ANIMALGIFT_COLUMN_KEY+" INTEGER NOT NULL, "
+                                                                    +ANIMALGIFT_COLUMN_DAY+" INTEGER NOT NULL, "
+                          +"PRIMARY KEY ("+ANIMALGIFT_COLUMN_KEY+","+ANIMALGIFT_COLUMN_DAY+"))");
+            }
+        } catch (SQLException e) {
+            successful = false;
+            Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+
+        if (oldVersion < DATABASE_VERSION) {
+            EndTransaction(db, successful);
+        }
     }
 
     public SQLiteDatabase StartTransaction() {
@@ -72,6 +104,50 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
             db.setTransactionSuccessful();
         }
         db.endTransaction();
+    }
+
+    public void purgeOldAnimalGifts(final SQLiteDatabase dbInTransaction, final int day) throws SQLException {
+        dbInTransaction.execSQL("DELETE FROM "+ANIMALGIFT_TABLE_NAME
+                               +" WHERE " + ANIMALGIFT_COLUMN_DAY + "<"+Integer.toString(day));
+    }
+
+    public void purgeOldAnimalGiftsT(final int day) throws SQLException {
+        boolean successful = true;
+        SQLiteDatabase dbInTransaction = StartTransaction();
+
+        try {
+            purgeOldAnimalGifts(dbInTransaction, day);
+        } catch (SQLException e) {
+            successful = false;
+            Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+
+        EndTransaction(dbInTransaction, successful);
+    }
+
+    public Set<Integer> fetchAwardedGifts(final int day) throws SQLException {
+        HashSet<Integer> result = new HashSet<>();
+
+        Cursor cursor = null;
+        try {
+            cursor = this.getReadableDatabase()
+                    .rawQuery("SELECT " + ANIMALGIFT_COLUMN_KEY
+                                    + " FROM " + ANIMALGIFT_TABLE_NAME
+                                    + " WHERE " + ANIMALGIFT_COLUMN_DAY + "=?",
+                            new String[]{Integer.toString(day)});
+            if (cursor.moveToFirst()) {
+                while (!cursor.isAfterLast()) {
+                    result.add(cursor.getInt(0));
+                    cursor.moveToNext();
+                }
+            }
+            return result;
+        }
+        finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     public int GetProperty(final String property) {

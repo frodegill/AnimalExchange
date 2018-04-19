@@ -65,7 +65,7 @@ public class AnimalGiftOverlay extends Overlay {
                     continue;
                 }
 
-                if (/*animalGift.Contains(key) ||*/ drawnBonuses.contains(key)) {
+                if (animalGift.isAwardedT(key, day) || drawnBonuses.contains(key)) {
                     continue;
                 }
 
