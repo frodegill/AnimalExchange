@@ -23,6 +23,9 @@ import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.overlays.AnimalGiftOverlay;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.overlays.MyLocationOverlay;
 import org.osmdroid.config.Configuration;
+import org.osmdroid.events.MapListener;
+import org.osmdroid.events.ScrollEvent;
+import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -30,7 +33,7 @@ import org.osmdroid.views.overlay.CopyrightOverlay;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 
 
-public class MapFragment extends Fragment implements LocationListener {
+public class MapFragment extends Fragment implements LocationListener, MapListener {
 
     private MapView mapView;
 
@@ -64,6 +67,7 @@ public class MapFragment extends Fragment implements LocationListener {
         Configuration.getInstance().setDebugTileProviders(false);
         Configuration.getInstance().setDebugMode(false);
 
+        mapView.setMapListener(this);
         mapView.setTileSource(TileSourceFactory.MAPNIK);
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
@@ -163,6 +167,28 @@ public class MapFragment extends Fragment implements LocationListener {
                                                    AnimalExchangeApplication.LOCATION_UPDATE_DISTANCE,
                                                    this);
         }
+    }
+
+    @Override
+    public boolean onScroll(ScrollEvent event) {
+        return false;
+    }
+
+    @Override
+    public boolean onZoom(ZoomEvent event) {
+        GameState gameState = GameState.getInstance();
+        AnimalExchangeDBHelper db = gameState.getDB();
+
+        boolean successful = true;
+        SQLiteDatabase dbInTransaction = db.StartTransaction();
+        try {
+            db.SetProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_ZOOM_LEVEL, event.getZoomLevel());
+        } catch (SQLException e) {
+            successful = false;
+            Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+        db.EndTransaction(dbInTransaction, successful);
+        return true;
     }
 
 }
