@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 
+import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
+
 
 public class Animal {
 
@@ -22,14 +24,14 @@ public class Animal {
     private Bitmap cachedSquareBitmap = null;
     private int cachedSquareBitmapSize = -1;
 
-    public Animal(final int level,
-                  final int id,
-                  final int squareDrawableId,
-                  final int roundedDrawableId,
-                  final int animalGroupId,
-                  final long distributionFrom,
-                  final long distributionTo,
-                  final int food) {
+    Animal(final int level,
+           final int id,
+           final int squareDrawableId,
+           final int roundedDrawableId,
+           final int animalGroupId,
+           final long distributionFrom,
+           final long distributionTo,
+           final int food) {
         this.level = level;
         this.id = id;
         this.squareDrawableId = squareDrawableId;
@@ -38,7 +40,6 @@ public class Animal {
         this.distributionFrom = distributionFrom;
         this.distributionTo = distributionTo;
         this.food = food;
-        AnimalManager.getInstance().getAnimalGroup(this.animalGroupId).addAnimal(this.id);
     }
 
     public String getName(final Context ctx) {
@@ -47,7 +48,7 @@ public class Animal {
 
     public Bitmap getRoundedBitmap(final Context ctx, final int size) {
         if (cachedRoundedBitmapSize != size) {
-            if ((cachedRoundedBitmap = getBitmap(ctx, this.roundedDrawableId, size)) !=null) {
+            if ((cachedRoundedBitmap = AnimalManager.getBitmap(ctx, this.roundedDrawableId, size)) !=null) {
                 cachedRoundedBitmapSize = size;
             }
         }
@@ -56,22 +57,11 @@ public class Animal {
 
     public Bitmap getSquareBitmap(final Context ctx, final int size) {
         if (cachedSquareBitmapSize != size) {
-            if ((cachedSquareBitmap = getBitmap(ctx, this.squareDrawableId, size)) != null) {
+            if ((cachedSquareBitmap = AnimalManager.getBitmap(ctx, this.squareDrawableId, size)) != null) {
                 cachedSquareBitmapSize = size;
             }
         }
         return cachedSquareBitmap;
-    }
-
-    private Bitmap getBitmap(final Context ctx, final int drawable_id, final int size) {
-        final Bitmap originalBitmap = BitmapFactory.decodeResource(ctx.getResources(), drawable_id);
-        int originalSize = originalBitmap.getWidth();
-        float scaleSize = ((float)size)/originalSize;
-
-        Matrix matrix = new Matrix();
-        matrix.postScale(scaleSize, scaleSize);
-
-        return Bitmap.createBitmap(originalBitmap, 0, 0, originalSize, originalSize, matrix, true);
     }
 
     public boolean containsDistributionValue(final long distributionValue) {

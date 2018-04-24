@@ -13,7 +13,7 @@ import java.util.Set;
 public class AnimalGift {
     private static final int HOR_GIFT_COUNT = 32768;
     private static final int VER_GIFT_COUNT = 16384;
-    public static final float GIFT_SIZE_RADIUS = 100.0f; //meters
+    public static final float GIFT_SIZE_RADIUS = 75.0f; //meters
 
     private int offsetDay = 0;
     private Point<Double> dailyOffset;
@@ -98,21 +98,15 @@ public class AnimalGift {
         return AnimalExchangeApplication.AVERAGE_RADIUS_OF_EARTH * c;
     }
 
-    public GeoPoint GeoPointFromGrid(int x, int y, int day) {
+    public GeoPoint GeoPointFromGrid(final int x, final int y, final int day) {
         Point<Double> offset = getOffset(day);
         return new GeoPoint(FromVerticalBonusGridF(y+offset.getY()),
                             FromHorizontalBonusGridF(x+offset.getX()));
     }
 
-    public Animal AnimalFromGrid(int x, int y, int day) {
-        AnimalManager animalManager = AnimalManager.getInstance();
-        long distributionValue = animalManager.calculateAnimalDistributionValue(x, y, day);
-        return animalManager.getAnimalFromDistributionValue(distributionValue);
-    }
-
     Point<Double> getOffset(final int day) {
         if (day != offsetDay) {
-            AnimalManager animalManager = AnimalManager.getInstance();
+            AnimalManager animalManager = GameState.getInstance().getAnimalManager();
             dailyOffset = animalManager.calculateAnimalOffset(day);
             offsetDay = day;
         }

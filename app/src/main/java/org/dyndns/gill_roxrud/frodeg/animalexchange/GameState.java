@@ -4,6 +4,7 @@ import android.content.Context;
 
 import org.dyndns.gill_roxrud.frodeg.animalexchange.activities.MapFragment;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalGift;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalManager;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -13,6 +14,7 @@ public class GameState {
 
     private static GameState instance = null;
 
+    private final AnimalManager animalManager;
     private final AnimalGift animalGift;
     private final AnimalExchangeDBHelper db;
 
@@ -21,6 +23,7 @@ public class GameState {
 
     private GameState() {
         Context context = AnimalExchangeApplication.getContext();
+        animalManager = new AnimalManager();
         animalGift = new AnimalGift();
         db = new AnimalExchangeDBHelper(context);
     }
@@ -30,6 +33,10 @@ public class GameState {
             instance = new GameState();
         }
         return instance;
+    }
+
+    public AnimalManager getAnimalManager() {
+        return animalManager;
     }
 
     public AnimalGift getAnimalGift() {

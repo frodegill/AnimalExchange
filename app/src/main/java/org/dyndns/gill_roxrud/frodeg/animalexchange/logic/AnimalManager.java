@@ -1,7 +1,12 @@
 package org.dyndns.gill_roxrud.frodeg.animalexchange.logic;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.util.SparseArray;
 
+import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.Point;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
 
@@ -14,7 +19,7 @@ import java.util.ArrayList;
  https://www.goodfreephotos.com/
 */
 
-class AnimalManager {
+public class AnimalManager {
 
     private static AnimalManager instance = null;
 
@@ -23,17 +28,13 @@ class AnimalManager {
     private final SparseArray<Animal> animalMap = new SparseArray<>();
     private final ArrayList<Animal> animalArray = new ArrayList<>();
 
+    private Bitmap cachedHiddenAnimalGiftBitmap = null;
+    private int cachedHiddenAnimalGiftBitmapSize = -1;
 
-    static AnimalManager getInstance() {
-        if (instance == null) {
-            instance = new AnimalManager();
-            instance.initializeAnimalGroups();
-            instance.initializeAnimals();
-        }
-        return instance;
-    }
 
-    private AnimalManager() {
+    public AnimalManager() {
+        initializeAnimalGroups();
+        initializeAnimals();
     }
 
     private void initializeAnimalGroups() {
@@ -182,6 +183,7 @@ class AnimalManager {
         Animal animal = new Animal(level, id, square_id, rounded_id, group_id, distributionFrom, distributionTo, food);
         animalMap.put(id, animal);
         animalArray.add(level, animal);
+        getAnimalGroup(group_id).addAnimal(id);
     }
 
     AnimalGroup getAnimalGroup(final int id) {
@@ -200,13 +202,33 @@ class AnimalManager {
         return animalArray.get(level);
     }
 
-    Animal getAnimalFromDistributionValue(final long value) {
+    public Animal getAnimalFromDistributionValue(final long value) {
         for (Animal animal : animalArray) {
             if (animal.containsDistributionValue(value)) {
                 return animal;
             }
         }
         return null;
+    }
+
+    public Bitmap getHiddenAnimalGiftBitmap(final Context ctx, final int size) {
+        if (cachedHiddenAnimalGiftBitmapSize != size) {
+            if ((cachedHiddenAnimalGiftBitmap = AnimalManager.getBitmap(ctx, R.drawable.unknown, size)) !=null) {
+                cachedHiddenAnimalGiftBitmapSize = size;
+            }
+        }
+        return cachedHiddenAnimalGiftBitmap;
+    }
+
+    static Bitmap getBitmap(final Context ctx, final int drawable_id, final int size) {
+        final Bitmap originalBitmap = BitmapFactory.decodeResource(ctx.getResources(), drawable_id);
+        int originalSize = originalBitmap.getWidth();
+        float scaleSize = ((float)size)/originalSize;
+
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleSize, scaleSize);
+
+        return Bitmap.createBitmap(originalBitmap, 0, 0, originalSize, originalSize, matrix, true);
     }
 
     Point<Double> calculateAnimalOffset(final int day) {
@@ -227,7 +249,7 @@ class AnimalManager {
         return new Point<>((randomX/255.0)-0.5, (randomY/255.0)-0.5);
     }
 
-    long calculateAnimalDistributionValue(final int x, final int y, final int day) {
+    public static long calculateAnimalDistributionValue(final int x, final int y, final int day) {
         MessageDigest messageDigest = createMessageDigest();
         if (messageDigest == null) {
             return 0L;
@@ -250,7 +272,11 @@ class AnimalManager {
         return getHash(messageDigest);
     }
 
-    private MessageDigest createMessageDigest() {
+    public static boolean isHiddenAnimalGift(final long distributionValue) {
+        return ((distributionValue%5L)==0L);
+    }
+
+    private static MessageDigest createMessageDigest() {
         try {
             return MessageDigest.getInstance("SHA-1");
         } catch (NoSuchAlgorithmException e) {
@@ -258,7 +284,7 @@ class AnimalManager {
         }
     }
 
-    private long getHash(final MessageDigest messageDigest) {
+    private static long getHash(final MessageDigest messageDigest) {
         byte hash[] = messageDigest.digest();
         long v = 0L;
         for (int i=0; i<4; i++) {

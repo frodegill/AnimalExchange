@@ -8,6 +8,7 @@ import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.Animal;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalGift;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.InvalidPositionException;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalManager;
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -33,6 +34,7 @@ public class AnimalGiftOverlay extends Overlay {
     private void draw(Canvas canvas, MapView mapView, IGeoPoint ne, IGeoPoint sw) {
         int day = GameState.getInstance().getDay();
 
+        AnimalManager animalManager = GameState.getInstance().getAnimalManager();
         AnimalGift animalGift = GameState.getInstance().getAnimalGift();
 
         int drawLevel = mapView.getZoomLevel();
@@ -73,8 +75,14 @@ public class AnimalGiftOverlay extends Overlay {
                 point = projection.toProjectedPixels(geoPoint, point);
                 point = projection.toPixelsFromProjected(point, point);
 
-                Animal animal = animalGift.AnimalFromGrid(x, y, day);
-                Bitmap animalBitmap = animal.getRoundedBitmap(AnimalExchangeApplication.getContext(), animalImageSize);
+                long distributionValue = AnimalManager.calculateAnimalDistributionValue(x, y, day);
+                Animal animal = animalManager.getAnimalFromDistributionValue(distributionValue);
+                Bitmap animalBitmap;
+                if (animalManager.isHiddenAnimalGift(distributionValue)) {
+                    animalBitmap = animalManager.getHiddenAnimalGiftBitmap(AnimalExchangeApplication.getContext(), animalImageSize);
+                } else {
+                    animalBitmap = animal.getRoundedBitmap(AnimalExchangeApplication.getContext(), animalImageSize);
+                }
                 canvas.drawBitmap(animalBitmap, point.x-radius, point.y-radius, null);
 
                 canvas.drawCircle(point.x, point.y, radius+halfStrokeWidth, black);
