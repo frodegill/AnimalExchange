@@ -3,7 +3,7 @@ package org.dyndns.gill_roxrud.frodeg.animalexchange;
 import android.content.Context;
 
 import org.dyndns.gill_roxrud.frodeg.animalexchange.activities.MapFragment;
-import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalGift;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalGiftManager;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalManager;
 
 import java.util.Calendar;
@@ -15,7 +15,7 @@ public class GameState {
     private static GameState instance = null;
 
     private final AnimalManager animalManager;
-    private final AnimalGift animalGift;
+    private final AnimalGiftManager animalGiftManager;
     private final AnimalExchangeDBHelper db;
 
     private final Point<Double> currentPos = new Point<>(AnimalExchangeApplication.EAST+1.0, AnimalExchangeApplication.NORTH+1.0);
@@ -24,7 +24,7 @@ public class GameState {
     private GameState() {
         Context context = AnimalExchangeApplication.getContext();
         animalManager = new AnimalManager();
-        animalGift = new AnimalGift();
+        animalGiftManager = new AnimalGiftManager();
         db = new AnimalExchangeDBHelper(context);
     }
 
@@ -39,8 +39,8 @@ public class GameState {
         return animalManager;
     }
 
-    public AnimalGift getAnimalGift() {
-        return animalGift;
+    public AnimalGiftManager getAnimalGiftManager() {
+        return animalGiftManager;
     }
 
     public AnimalExchangeDBHelper getDB() {
@@ -61,6 +61,11 @@ public class GameState {
 
     public void onPositionChangedT(MapFragment mapFragment, double x_pos, double y_pos) {
         currentPos.set(x_pos, y_pos);
+        try {
+            if (null!=animalGiftManager.requestAnimalGiftT(currentPos, getDay())) {
+            }
+        } catch (InvalidPositionException e) {
+        }
     }
 
     public int getDay() {

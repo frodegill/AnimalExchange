@@ -5,7 +5,7 @@ import android.graphics.*;
 
 import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.Animal;
-import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalGift;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalGiftManager;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.InvalidPositionException;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalManager;
@@ -35,23 +35,23 @@ public class AnimalGiftOverlay extends Overlay {
         int day = GameState.getInstance().getDay();
 
         AnimalManager animalManager = GameState.getInstance().getAnimalManager();
-        AnimalGift animalGift = GameState.getInstance().getAnimalGift();
+        AnimalGiftManager animalGiftManager = GameState.getInstance().getAnimalGiftManager();
 
         int drawLevel = mapView.getZoomLevel();
         if (MINIMUM_DRAW_LEVEL > drawLevel) {
             return;
         }
 
-        int topGift = animalGift.ToVerticalGift(ne.getLatitude());
-        int leftGift = animalGift.ToHorizontalGift(sw.getLongitude());
-        int bottomGift = animalGift.ToVerticalGift(sw.getLatitude());
-        int rightGift = animalGift.ToHorizontalGift(ne.getLongitude());
+        int topGift = animalGiftManager.ToVerticalGift(ne.getLatitude());
+        int leftGift = animalGiftManager.ToHorizontalGift(sw.getLongitude());
+        int bottomGift = animalGiftManager.ToVerticalGift(sw.getLatitude());
+        int rightGift = animalGiftManager.ToHorizontalGift(ne.getLongitude());
 
         android.graphics.Point point = null;
         GeoPoint geoPoint;
 
         Projection projection = mapView.getProjection();
-        float radius = projection.metersToPixels(AnimalGift.GIFT_SIZE_RADIUS);
+        float radius = projection.metersToPixels(AnimalGiftManager.GIFT_SIZE_RADIUS);
         int animalImageSize = (int)(radius*2);
 
         float halfStrokeWidth = radius/50;
@@ -62,16 +62,16 @@ public class AnimalGiftOverlay extends Overlay {
         for (y=bottomGift; y<=(topGift+1); y++) {
             for (x=leftGift; x<=(rightGift+1); x++) {
                 try {
-                    key = animalGift.ToBonusKey(x, y);
+                    key = animalGiftManager.ToBonusKey(x, y);
                 } catch (InvalidPositionException e) {
                     continue;
                 }
 
-                if (animalGift.isAwardedT(key, day) || drawnBonuses.contains(key)) {
+                if (animalGiftManager.isAwardedT(key, day) || drawnBonuses.contains(key)) {
                     continue;
                 }
 
-                geoPoint = animalGift.GeoPointFromGrid(x, y, day);
+                geoPoint = animalGiftManager.GeoPointFromGrid(x, y, day);
                 point = projection.toProjectedPixels(geoPoint, point);
                 point = projection.toPixelsFromProjected(point, point);
 

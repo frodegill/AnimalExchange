@@ -10,7 +10,7 @@ import org.osmdroid.util.GeoPoint;
 import java.util.Set;
 
 
-public class AnimalGift {
+public class AnimalGiftManager {
     private static final int HOR_GIFT_COUNT = 32768;
     private static final int VER_GIFT_COUNT = 16384;
     public static final float GIFT_SIZE_RADIUS = 75.0f; //meters
@@ -24,7 +24,11 @@ public class AnimalGift {
     private int awardDay = 0;
 
 
-    public AnimalGift() {
+    public AnimalGiftManager() {
+    }
+
+    public Animal requestAnimalGiftT(final Point<Double> pos, final int day) throws InvalidPositionException {
+        return null; //TODO
     }
 
     public boolean isAwardedT(final int key, final int day) {
