@@ -67,7 +67,7 @@ public class MapFragment extends Fragment implements LocationListener, MapListen
         Configuration.getInstance().setDebugTileProviders(false);
         Configuration.getInstance().setDebugMode(false);
 
-        mapView.setMapListener(this);
+        mapView.addMapListener(this);
         mapView.setTileSource(TileSourceFactory.MAPNIK);
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
@@ -89,9 +89,9 @@ public class MapFragment extends Fragment implements LocationListener, MapListen
         boolean successful = true;
         SQLiteDatabase dbInTransaction = db.StartTransaction();
         try {
-            db.SetProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_X_POS, mapView.getScrollX());
-            db.SetProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_Y_POS, mapView.getScrollY());
-            db.SetProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_ZOOM_LEVEL, mapView.getZoomLevel());
+            db.SetIntProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_X_POS, mapView.getScrollX());
+            db.SetIntProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_Y_POS, mapView.getScrollY());
+            db.SetDoubleProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_ZOOM_LEVEL, mapView.getZoomLevelDouble());
 
         } catch (SQLException e) {
             successful = false;
@@ -100,6 +100,7 @@ public class MapFragment extends Fragment implements LocationListener, MapListen
         db.EndTransaction(dbInTransaction, successful);
 
         super.onPause();
+        mapView.onPause();
         DisableLocationUpdates();
     }
 
@@ -112,11 +113,12 @@ public class MapFragment extends Fragment implements LocationListener, MapListen
     @Override
     public void onResume() {
         super.onResume();
+        mapView.onResume();
 
         GameState gameState = GameState.getInstance();
         AnimalExchangeDBHelper db = gameState.getDB();
-        mapView.getController().setZoom(db.GetProperty(AnimalExchangeDBHelper.PROPERTY_ZOOM_LEVEL));
-        mapView.scrollTo(db.GetProperty(AnimalExchangeDBHelper.PROPERTY_X_POS), db.GetProperty(AnimalExchangeDBHelper.PROPERTY_Y_POS));
+        mapView.getController().setZoom(db.GetDoubleProperty(AnimalExchangeDBHelper.PROPERTY_ZOOM_LEVEL));
+        mapView.scrollTo(db.GetIntProperty(AnimalExchangeDBHelper.PROPERTY_X_POS), db.GetIntProperty(AnimalExchangeDBHelper.PROPERTY_Y_POS));
         mapView.setUseDataConnection(gameState.getUseDataConnection());
 
         EnableLocationUpdates();
@@ -182,7 +184,7 @@ public class MapFragment extends Fragment implements LocationListener, MapListen
         boolean successful = true;
         SQLiteDatabase dbInTransaction = db.StartTransaction();
         try {
-            db.SetProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_ZOOM_LEVEL, event.getZoomLevel());
+            db.SetDoubleProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_ZOOM_LEVEL, event.getZoomLevel());
         } catch (SQLException e) {
             successful = false;
             Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();

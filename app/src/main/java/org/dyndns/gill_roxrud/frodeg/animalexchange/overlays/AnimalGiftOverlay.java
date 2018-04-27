@@ -1,13 +1,11 @@
 package org.dyndns.gill_roxrud.frodeg.animalexchange.overlays;
 
-
 import android.graphics.*;
+import android.graphics.Point;
 
-import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.*;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.Animal;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalGiftManager;
-import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
-import org.dyndns.gill_roxrud.frodeg.animalexchange.InvalidPositionException;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalManager;
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.util.GeoPoint;
@@ -37,7 +35,7 @@ public class AnimalGiftOverlay extends Overlay {
         AnimalManager animalManager = GameState.getInstance().getAnimalManager();
         AnimalGiftManager animalGiftManager = GameState.getInstance().getAnimalGiftManager();
 
-        int drawLevel = mapView.getZoomLevel();
+        double drawLevel = mapView.getZoomLevelDouble();
         if (MINIMUM_DRAW_LEVEL > drawLevel) {
             return;
         }
@@ -47,38 +45,34 @@ public class AnimalGiftOverlay extends Overlay {
         int bottomGift = animalGiftManager.ToVerticalGift(sw.getLatitude());
         int rightGift = animalGiftManager.ToHorizontalGift(ne.getLongitude());
 
-        android.graphics.Point point = null;
-        GeoPoint geoPoint;
-
-        Projection projection = mapView.getProjection();
-        float radius = projection.metersToPixels(AnimalGiftManager.GIFT_SIZE_RADIUS);
+        Projection pj = mapView.getProjection();
+        float radius = pj.metersToPixels(AnimalGiftManager.GIFT_SIZE_RADIUS);
         int animalImageSize = (int)(radius*2);
 
         float halfStrokeWidth = radius/50;
         black.setStrokeWidth(2*halfStrokeWidth);
 
-        HashSet<Integer> drawnBonuses = new HashSet<>();
+        Point point = new Point();
+        HashSet<Integer> drawnAnimalGifts = new HashSet<>();
         int x, y, key;
         for (y=bottomGift; y<=(topGift+1); y++) {
             for (x=leftGift; x<=(rightGift+1); x++) {
                 try {
-                    key = animalGiftManager.ToBonusKey(x, y);
+                    key = animalGiftManager.ToAnimalGiftKey(x, y);
                 } catch (InvalidPositionException e) {
                     continue;
                 }
 
-                if (animalGiftManager.isAwardedT(key, day) || drawnBonuses.contains(key)) {
+                if (animalGiftManager.isAwardedT(key, day) || drawnAnimalGifts.contains(key)) {
                     continue;
                 }
 
-                geoPoint = animalGiftManager.GeoPointFromGrid(x, y, day);
-                point = projection.toProjectedPixels(geoPoint, point);
-                point = projection.toPixelsFromProjected(point, point);
+                point = pj.toPixels(animalGiftManager.GeoPointFromGrid(x, y, day), point, true);
 
                 long distributionValue = AnimalManager.calculateAnimalDistributionValue(x, y, day);
                 Animal animal = animalManager.getAnimalFromDistributionValue(distributionValue);
                 Bitmap animalBitmap;
-                if (animalManager.isHiddenAnimalGift(distributionValue)) {
+                if (AnimalManager.isHiddenAnimalGift(distributionValue)) {
                     animalBitmap = animalManager.getHiddenAnimalGiftBitmap(AnimalExchangeApplication.getContext(), animalImageSize);
                 } else {
                     animalBitmap = animal.getRoundedBitmap(AnimalExchangeApplication.getContext(), animalImageSize);
@@ -87,7 +81,7 @@ public class AnimalGiftOverlay extends Overlay {
 
                 canvas.drawCircle(point.x, point.y, radius+halfStrokeWidth, black);
 
-                drawnBonuses.add(key);
+                drawnAnimalGifts.add(key);
             }
         }
     }
@@ -107,8 +101,8 @@ public class AnimalGiftOverlay extends Overlay {
         }
 
         if (ne.getLongitude() < sw.getLongitude()) { //Across date-line?
-            GeoPoint neEastBorder = new GeoPoint(ne.getLatitude(), AnimalExchangeApplication.EAST);
-            GeoPoint swWestBorder = new GeoPoint(sw.getLatitude(), AnimalExchangeApplication.WEST);
+            IGeoPoint neEastBorder = new GeoPoint(ne.getLatitude(), AnimalExchangeApplication.EAST);
+            IGeoPoint swWestBorder = new GeoPoint(sw.getLatitude(), AnimalExchangeApplication.WEST);
             draw(canvas, mapView, neEastBorder, sw);
             draw(canvas, mapView, ne, swWestBorder);
         } else {

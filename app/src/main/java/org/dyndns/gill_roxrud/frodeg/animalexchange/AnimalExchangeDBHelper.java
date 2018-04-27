@@ -106,7 +106,7 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
         db.endTransaction();
     }
 
-    public void purgeOldAnimalGifts(final SQLiteDatabase dbInTransaction, final int day) throws SQLException {
+    private void purgeOldAnimalGifts(final SQLiteDatabase dbInTransaction, final int day) throws SQLException {
         dbInTransaction.execSQL("DELETE FROM "+ANIMALGIFT_TABLE_NAME
                                +" WHERE " + ANIMALGIFT_COLUMN_DAY + "<"+Integer.toString(day));
     }
@@ -150,17 +150,36 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public int GetProperty(final String property) {
+    public int GetIntProperty(final String property) {
         Cursor cursor = null;
         try {
             cursor = this.getReadableDatabase()
                     .rawQuery(String.format("SELECT %s FROM %s WHERE %s=?",
-                                            PROPERTY_COLUMN_VALUE, PROPERTY_TABLE_NAME, PROPERTY_COLUMN_KEY),
-                              new String[]{property});
+                            PROPERTY_COLUMN_VALUE, PROPERTY_TABLE_NAME, PROPERTY_COLUMN_KEY),
+                            new String[]{property});
             if (!cursor.moveToFirst()) {
                 return 0;
             }
             return cursor.isAfterLast() ? 0 : cursor.getInt(0);
+        }
+        finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    public double GetDoubleProperty(final String property) {
+        Cursor cursor = null;
+        try {
+            cursor = this.getReadableDatabase()
+                    .rawQuery(String.format("SELECT %s FROM %s WHERE %s=?",
+                            PROPERTY_COLUMN_VALUE, PROPERTY_TABLE_NAME, PROPERTY_COLUMN_KEY),
+                            new String[]{property});
+            if (!cursor.moveToFirst()) {
+                return 0;
+            }
+            return cursor.isAfterLast() ? 0 : cursor.getDouble(0);
         }
         finally {
             if (cursor != null) {
@@ -188,10 +207,16 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void SetProperty(final SQLiteDatabase dbInTransaction, final String property, final int value) throws SQLException {
+    public void SetIntProperty(final SQLiteDatabase dbInTransaction, final String property, final int value) throws SQLException {
         dbInTransaction.execSQL(String.format("UPDATE %s SET %s=? WHERE %s=?",
-                                              PROPERTY_TABLE_NAME, PROPERTY_COLUMN_VALUE, PROPERTY_COLUMN_KEY),
-                                new String[] {Integer.toString(value), property});
+                PROPERTY_TABLE_NAME, PROPERTY_COLUMN_VALUE, PROPERTY_COLUMN_KEY),
+                new String[] {Integer.toString(value), property});
+    }
+
+    public void SetDoubleProperty(final SQLiteDatabase dbInTransaction, final String property, final double value) throws SQLException {
+        dbInTransaction.execSQL(String.format("UPDATE %s SET %s=? WHERE %s=?",
+                PROPERTY_TABLE_NAME, PROPERTY_COLUMN_VALUE, PROPERTY_COLUMN_KEY),
+                new String[] {Double.toString(value), property});
     }
 
     public void SetPropertyT(final String property, final int value) {
@@ -199,7 +224,7 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
         SQLiteDatabase dbInTransaction = StartTransaction();
 
         try {
-            SetProperty(dbInTransaction, property, value);
+            SetIntProperty(dbInTransaction, property, value);
         } catch (SQLException e) {
             successful = false;
             Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
