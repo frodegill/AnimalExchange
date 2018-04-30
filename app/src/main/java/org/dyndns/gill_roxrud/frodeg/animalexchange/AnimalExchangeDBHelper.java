@@ -106,6 +106,22 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
         db.endTransaction();
     }
 
+    public boolean PersistAnimalT(final int giftKey, final int day) {
+        boolean successful = true;
+        SQLiteDatabase dbInTransaction = StartTransaction();
+        try {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(ANIMALGIFT_COLUMN_KEY, giftKey);
+            contentValues.put(ANIMALGIFT_COLUMN_DAY, day);
+            successful &= (-1 != dbInTransaction.insert(ANIMALGIFT_TABLE_NAME, null, contentValues));
+        } catch (SQLException e) {
+            successful = false;
+            Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+        EndTransaction(dbInTransaction, successful);
+        return successful;
+    }
+
     private void purgeOldAnimalGifts(final SQLiteDatabase dbInTransaction, final int day) throws SQLException {
         dbInTransaction.execSQL("DELETE FROM "+ANIMALGIFT_TABLE_NAME
                                +" WHERE " + ANIMALGIFT_COLUMN_DAY + "<"+Integer.toString(day));

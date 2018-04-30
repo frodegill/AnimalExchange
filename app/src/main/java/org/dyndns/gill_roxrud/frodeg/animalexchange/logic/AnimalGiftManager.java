@@ -30,7 +30,7 @@ public class AnimalGiftManager {
     public AnimalGiftManager() {
     }
 
-    public Animal requestAnimalGift(final Point<Double> pos, final int day) throws InvalidPositionException {
+    public Animal requestAnimalGiftT(final Point<Double> pos, final int day) throws InvalidPositionException {
         double horizontal_pos_rounded = pos.getX() + HALF_HOR_GIFT_DEGREE;
         if (AnimalExchangeApplication.EAST<=horizontal_pos_rounded) {
             horizontal_pos_rounded -= AnimalExchangeApplication.HOR_DEGREES;
@@ -46,16 +46,18 @@ public class AnimalGiftManager {
                                                      FromVerticalGift(p.getY() + offset.getY()));
 
         if (GIFT_SIZE_RADIUS >= CalculateDistance(pos, nearest_gift_pos)) {
-            if (giftsAwarded==null || awardDay!=day) {
-                giftsAwarded = new HashSet<>();
-                awardDay = day;
+            int animalGiftKey = ToAnimalGiftKey(p.getX(), p.getY());
+            if (GameState.getInstance().getDB().PersistAnimalT(animalGiftKey, day)) {
+                if (giftsAwarded == null || awardDay != day) {
+                    giftsAwarded = new HashSet<>();
+                    awardDay = day;
+                }
+                giftsAwarded.add(animalGiftKey);
+
+                long distributionValue = AnimalManager.calculateAnimalDistributionValue(p.getX(), p.getY(), day);
+                return GameState.getInstance().getAnimalManager().getAnimalFromDistributionValue(distributionValue);
             }
-            giftsAwarded.add(ToAnimalGiftKey(p.getX(), p.getY()));
-
-            long distributionValue = AnimalManager.calculateAnimalDistributionValue(p.getX(), p.getY(), day);
-            return GameState.getInstance().getAnimalManager().getAnimalFromDistributionValue(distributionValue);
         }
-
         return null;
     }
 
