@@ -14,6 +14,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
@@ -191,6 +192,20 @@ public class MapFragment extends Fragment implements LocationListener, MapListen
         }
         db.EndTransaction(dbInTransaction, successful);
         return true;
+    }
+
+    public void onScoreUpdated(final double speed, final double food) {
+        TextView view;
+        try {
+            view = getView().findViewById(R.id.speed);
+            view.setText(Double.toString(((int)(speed*10))/10.0));
+        }
+        catch(NullPointerException e) {}
+
+        try {
+            view = getView().findViewById(R.id.food);
+            view.setText(Integer.toString((int)food));
+        } catch(NullPointerException e) {}
     }
 
 }

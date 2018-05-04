@@ -9,8 +9,9 @@ public class AnimalExchangeApplication extends Application {
 
     public static final String HELP_URL = "https://gill-roxrud.dyndns.org/animalexchange";
 
-    public static final long  LOCATION_UPDATE_INTERVAL = 30L;
-    public static final float LOCATION_UPDATE_DISTANCE = 25.0f;
+    public static final long  LOCATION_UPDATE_INTERVAL = 30L; //seconds
+    public static final float LOCATION_UPDATE_DISTANCE = 25.0f; //meters
+    public static final float MAX_ALLOWED_SPEED = 20.0f; //km/h
 
     public static final double NORTH = 90.0; //degrees
     public static final double EAST = 180.0; //degrees

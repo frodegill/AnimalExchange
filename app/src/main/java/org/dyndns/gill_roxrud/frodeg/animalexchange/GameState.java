@@ -62,9 +62,11 @@ public class GameState {
     public void onPositionChangedT(MapFragment mapFragment, double x_pos, double y_pos) {
         currentPos.set(x_pos, y_pos);
         try {
+            AnimalManager.MovementInfo movementInfo = animalManager.requestFoodT(currentPos);
+
             if (null!=animalGiftManager.requestAnimalGiftT(currentPos, getDay())) {
- //               mapFragment.onScoreUpdated();
             }
+            mapFragment.onScoreUpdated(movementInfo.speed, movementInfo.food);
         } catch (InvalidPositionException e) {
         }
     }

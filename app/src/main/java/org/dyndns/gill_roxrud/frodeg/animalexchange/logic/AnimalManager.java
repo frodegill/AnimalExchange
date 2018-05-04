@@ -6,13 +6,18 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.util.SparseArray;
 
+import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.InvalidPositionException;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.Point;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.TimeZone;
 
 /*
  https://www.pexels.com/
@@ -30,6 +35,14 @@ public class AnimalManager {
 
     private Bitmap cachedHiddenAnimalGiftBitmap = null;
     private int cachedHiddenAnimalGiftBitmapSize = -1;
+
+    private final Point<Double> previousAcceptedPos = new Point<>(AnimalExchangeApplication.EAST+1.0, AnimalExchangeApplication.NORTH+1.0);
+    private long previousAcceptedPosTime = 0L;
+
+    public class MovementInfo {
+        public double food;
+        public double speed;
+    }
 
 
     public AnimalManager() {
@@ -231,6 +244,37 @@ public class AnimalManager {
         return Bitmap.createBitmap(originalBitmap, 0, 0, originalSize, originalSize, matrix, true);
     }
 
+    public MovementInfo requestFoodT(final Point<Double> pos) {
+        MovementInfo movementInfo = new MovementInfo();
+
+        long now = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis();
+        long timespanMillis = (now-previousAcceptedPosTime);
+        if ((4L*AnimalExchangeApplication.LOCATION_UPDATE_INTERVAL*1000L) < timespanMillis) { //Allow some, but not a lot, of lost GPS connection
+            previousAcceptedPosTime = now;
+            previousAcceptedPos.set(pos.getX(), pos.getY());
+            movementInfo.food = movementInfo.speed = 0.0;
+            return movementInfo;
+        }
+
+        movementInfo.food = CalculateDistance(pos, previousAcceptedPos);
+        if (AnimalExchangeApplication.LOCATION_UPDATE_DISTANCE > movementInfo.food ||
+            0L == timespanMillis) {
+            movementInfo.food = movementInfo.speed = 0.0;
+            return movementInfo;
+        }
+
+        movementInfo.speed = movementInfo.food/(timespanMillis/3600.0); // km/h
+        if (AnimalExchangeApplication.MAX_ALLOWED_SPEED >= movementInfo.speed) {
+            if (!GameState.getInstance().getDB().PersistFoodT(movementInfo.food)) {
+                movementInfo.food = 0.0;
+            }
+        }
+
+        previousAcceptedPosTime = now;
+        previousAcceptedPos.set(pos.getX(), pos.getY());
+        return movementInfo;
+    }
+
     Point<Double> calculateAnimalOffset(final int day) {
         MessageDigest messageDigest = createMessageDigest();
         if (messageDigest == null) {
@@ -291,6 +335,21 @@ public class AnimalManager {
             v = (v<<8) | (hash[i]&0xFF);
         }
         return v;
+    }
+
+    /* http://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula */
+    public static double CalculateDistance(final Point<Double> p1, final Point<Double> p2) {
+
+        double latDistance = Math.toRadians(p1.getY() - p2.getY());
+        double lngDistance = Math.toRadians(p1.getX() - p2.getX());
+
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(p1.getY())) * Math.cos(Math.toRadians(p2.getY()))
+                * Math.sin(lngDistance / 2) * Math.sin(lngDistance / 2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return AnimalExchangeApplication.AVERAGE_RADIUS_OF_EARTH * c;
     }
 
 }

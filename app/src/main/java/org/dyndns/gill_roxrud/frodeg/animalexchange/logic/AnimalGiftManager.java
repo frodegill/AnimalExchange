@@ -15,8 +15,10 @@ public class AnimalGiftManager {
     private static final int HOR_GIFT_COUNT = 32768;
     private static final int VER_GIFT_COUNT = 16384;
     public static final float GIFT_SIZE_RADIUS = 75.0f; //meters
-    static final double HALF_HOR_GIFT_DEGREE = (AnimalExchangeApplication.HOR_DEGREES/HOR_GIFT_COUNT)/2; //Used for rounding
-    static final double HALF_VER_GIFT_DEGREE = (AnimalExchangeApplication.VER_DEGREES/VER_GIFT_COUNT)/2; //Used for rounding
+    public static final double HOR_GIFT_DEGREE = AnimalExchangeApplication.HOR_DEGREES/HOR_GIFT_COUNT;
+    public static final double VER_GIFT_DEGREE = AnimalExchangeApplication.VER_DEGREES/VER_GIFT_COUNT;
+    public static final double HALF_HOR_GIFT_DEGREE = HOR_GIFT_DEGREE/2.0;
+    public static final double HALF_VER_GIFT_DEGREE = VER_GIFT_DEGREE/2.0;
 
     private int offsetDay = 0;
     private Point<Double> dailyOffset;
@@ -31,21 +33,21 @@ public class AnimalGiftManager {
     }
 
     public Animal requestAnimalGiftT(final Point<Double> pos, final int day) throws InvalidPositionException {
-        double horizontal_pos_rounded = pos.getX() + HALF_HOR_GIFT_DEGREE;
+        Point<Double> offset = getOffset(day); //-0.5 to 0.5
+        double horizontal_pos_rounded = pos.getX() + HALF_HOR_GIFT_DEGREE - HOR_GIFT_DEGREE*offset.getX();
         if (AnimalExchangeApplication.EAST<=horizontal_pos_rounded) {
             horizontal_pos_rounded -= AnimalExchangeApplication.HOR_DEGREES;
         }
 
-        double vertical_pos_rounded = pos.getY() + HALF_VER_GIFT_DEGREE;
+        double vertical_pos_rounded = pos.getY() + HALF_VER_GIFT_DEGREE - VER_GIFT_DEGREE*offset.getY();
 
         Point<Integer> p = new Point<>(ToHorizontalGift(horizontal_pos_rounded),
                                        ToVerticalGift(vertical_pos_rounded));
 
-        Point<Double> offset = getOffset(day); //-0.5 to 0.5
         Point<Double> nearest_gift_pos = new Point<>(FromHorizontalGift(p.getX() + offset.getX()),
                                                      FromVerticalGift(p.getY() + offset.getY()));
 
-        if (GIFT_SIZE_RADIUS >= CalculateDistance(pos, nearest_gift_pos)) {
+        if (GIFT_SIZE_RADIUS >= AnimalManager.CalculateDistance(pos, nearest_gift_pos)) {
             int animalGiftKey = ToAnimalGiftKey(p.getX(), p.getY());
             if (GameState.getInstance().getDB().PersistAnimalT(animalGiftKey, day)) {
                 if (giftsAwarded == null || awardDay != day) {
@@ -97,7 +99,7 @@ public class AnimalGiftManager {
     public int ToVerticalGift(final double y_pos) {
         if (AnimalExchangeApplication.MAX_SOUTH_POS>y_pos) {
             return ToVerticalGift(AnimalExchangeApplication.MAX_SOUTH_POS);
-        } else if (AnimalExchangeApplication.MAX_NORTH_POS<=y_pos) {
+        } else if (AnimalExchangeApplication.MAX_NORTH_POS<y_pos) {
             return ToVerticalGift(AnimalExchangeApplication.MAX_NORTH_POS);
         }
 
@@ -120,27 +122,12 @@ public class AnimalGiftManager {
         return (y<<16) | x;
     }
 
-    /* http://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula */
-    private double CalculateDistance(final Point<Double> p1, final Point<Double> p2) {
-
-        double latDistance = Math.toRadians(p1.getY() - p2.getY());
-        double lngDistance = Math.toRadians(p1.getX() - p2.getX());
-
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(p1.getY())) * Math.cos(Math.toRadians(p2.getY()))
-                * Math.sin(lngDistance / 2) * Math.sin(lngDistance / 2);
-
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return AnimalExchangeApplication.AVERAGE_RADIUS_OF_EARTH * c;
-    }
-
     public GeoPoint GeoPointFromGrid(final int x, final int y, final int day) {
         Point<Double> offset = getOffset(day);
         return new GeoPoint(FromVerticalGift(y+offset.getY()), FromHorizontalGift(x+offset.getX()));
     }
 
-    Point<Double> getOffset(final int day) {
+    public Point<Double> getOffset(final int day) {
         if (day != offsetDay) {
             AnimalManager animalManager = GameState.getInstance().getAnimalManager();
             dailyOffset = animalManager.calculateAnimalOffset(day);

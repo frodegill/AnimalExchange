@@ -14,7 +14,7 @@ import java.util.Set;
 
 public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     private static final String DATABASE_NAME         = "AnimalExchange.db";
 
     private static final String ANIMALGIFT_TABLE_NAME = "animalgift";
@@ -28,6 +28,7 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
     public static final String PROPERTY_X_POS         = "x_pos";
     public static final String PROPERTY_Y_POS         = "y_pos";
     public static final String PROPERTY_ZOOM_LEVEL    = "zoom_level";
+    public static final String PROPERTY_FOOD          = "food";
 
 
     public AnimalExchangeDBHelper(Context context) {
@@ -58,6 +59,11 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
             contentValues.put(PROPERTY_COLUMN_VALUE, 11);
             successful &= (-1 != db.insert(PROPERTY_TABLE_NAME, null, contentValues));
 
+            contentValues = new ContentValues();
+            contentValues.put(PROPERTY_COLUMN_KEY, PROPERTY_FOOD);
+            contentValues.put(PROPERTY_COLUMN_VALUE, 0.0);
+            successful &= (-1 != db.insert(PROPERTY_TABLE_NAME, null, contentValues));
+
             db.execSQL("CREATE TABLE "+ANIMALGIFT_TABLE_NAME+"("+ANIMALGIFT_COLUMN_KEY+" INTEGER NOT NULL, "
                                                                 +ANIMALGIFT_COLUMN_DAY+" INTEGER NOT NULL, "
                       +"PRIMARY KEY ("+ANIMALGIFT_COLUMN_KEY+","+ANIMALGIFT_COLUMN_DAY+"))");
@@ -83,6 +89,13 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
                                                                     +ANIMALGIFT_COLUMN_DAY+" INTEGER NOT NULL, "
                           +"PRIMARY KEY ("+ANIMALGIFT_COLUMN_KEY+","+ANIMALGIFT_COLUMN_DAY+"))");
             }
+
+            if (oldVersion < 3) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(PROPERTY_COLUMN_KEY, PROPERTY_FOOD);
+                contentValues.put(PROPERTY_COLUMN_VALUE, 0.0);
+                successful &= (-1 != db.insert(PROPERTY_TABLE_NAME, null, contentValues));
+            }
         } catch (SQLException e) {
             successful = false;
             Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -104,6 +117,22 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
             db.setTransactionSuccessful();
         }
         db.endTransaction();
+    }
+
+    public boolean PersistFoodT(final double food) {
+        boolean successful = true;
+        SQLiteDatabase dbInTransaction = StartTransaction();
+        try {
+            dbInTransaction.execSQL("UPDATE "+PROPERTY_TABLE_NAME
+                                   +" SET "+PROPERTY_COLUMN_VALUE+" = "+PROPERTY_COLUMN_VALUE+"+?"
+                                   +" WHERE "+PROPERTY_COLUMN_KEY+"=?",
+                    new String[] {Double.toString(food), PROPERTY_FOOD});
+        } catch (SQLException e) {
+            successful = false;
+            Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+        EndTransaction(dbInTransaction, successful);
+        return successful;
     }
 
     public boolean PersistAnimalT(final int giftKey, final int day) {
