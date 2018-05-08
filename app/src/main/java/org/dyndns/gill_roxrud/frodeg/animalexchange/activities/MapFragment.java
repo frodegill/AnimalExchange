@@ -194,7 +194,7 @@ public class MapFragment extends Fragment implements LocationListener, MapListen
         return true;
     }
 
-    public void onScoreUpdated(final double speed, final double food) {
+    public void onScoreUpdated(final double speed) {
         TextView view;
         try {
             view = getView().findViewById(R.id.speed);
@@ -203,8 +203,11 @@ public class MapFragment extends Fragment implements LocationListener, MapListen
         catch(NullPointerException e) {}
 
         try {
+            GameState gameState = GameState.getInstance();
+            AnimalExchangeDBHelper db = gameState.getDB();
+
             view = getView().findViewById(R.id.food);
-            view.setText(Integer.toString((int)food));
+            view.setText(Integer.toString((int)db.GetFood()));
         } catch(NullPointerException e) {}
     }
 

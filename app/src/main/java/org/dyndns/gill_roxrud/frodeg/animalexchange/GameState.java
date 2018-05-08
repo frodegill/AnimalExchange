@@ -66,7 +66,7 @@ public class GameState {
 
             if (null!=animalGiftManager.requestAnimalGiftT(currentPos, getDay())) {
             }
-            mapFragment.onScoreUpdated(movementInfo.speed, movementInfo.food);
+            mapFragment.onScoreUpdated(movementInfo.speed);
         } catch (InvalidPositionException e) {
         }
     }

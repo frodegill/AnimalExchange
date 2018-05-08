@@ -30,6 +30,8 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
     public static final String PROPERTY_ZOOM_LEVEL    = "zoom_level";
     public static final String PROPERTY_FOOD          = "food";
 
+    private Double cachedFood = null;
+
 
     public AnimalExchangeDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -120,6 +122,10 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
     }
 
     public boolean PersistFoodT(final double food) {
+        if (cachedFood == null) {
+            GetFood(); //Initialize cache
+        }
+
         boolean successful = true;
         SQLiteDatabase dbInTransaction = StartTransaction();
         try {
@@ -132,7 +138,19 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
             Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
         EndTransaction(dbInTransaction, successful);
+
+        if (successful) {
+            cachedFood += food;
+        }
+
         return successful;
+    }
+
+    public double GetFood() {
+        if (cachedFood == null) {
+            cachedFood = new Double(GetDoubleProperty(PROPERTY_FOOD));
+        }
+        return cachedFood.doubleValue();
     }
 
     public boolean PersistAnimalT(final int giftKey, final int day) {
