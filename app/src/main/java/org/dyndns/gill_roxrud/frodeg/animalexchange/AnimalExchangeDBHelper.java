@@ -8,18 +8,32 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.Toast;
 
+import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.SyncQueueManager;
+
 import java.util.HashSet;
 import java.util.Set;
 
 
 public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 5;
     private static final String DATABASE_NAME         = "AnimalExchange.db";
+
+    private static final String ANIMAL_TABLE_NAME     = "animal";
+    private static final String ANIMAL_COLUMN_ID      = "id";
+    private static final String ANIMAL_COLUMN_TYPE    = "type";
+    private static final String ANIMAL_COLUMN_FOOD    = "food"; //Food remaining until full
+    private static final String ANIMAL_COLUMN_PRICE   = "price"; //Sell price. NULL if Not For Sale
 
     private static final String ANIMALGIFT_TABLE_NAME = "animalgift";
     private static final String ANIMALGIFT_COLUMN_KEY = "key";
     private static final String ANIMALGIFT_COLUMN_DAY = "day";
+
+    private static final String SYNCQUEUE_TABLE_NAME  = "syncqueue";
+    private static final String SYNCQUEUE_COLUMN_ID   = "id";
+    private static final String SYNCQUEUE_COLUMN_TYPE = "type";
+    private static final String SYNCQUEUE_COLUMN_VALUE1 = "value1";
+    private static final String SYNCQUEUE_COLUMN_VALUE2 = "value2";
 
     private static final String PROPERTY_TABLE_NAME   = "properties";
     private static final String PROPERTY_COLUMN_KEY   = "key";
@@ -69,6 +83,21 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
             db.execSQL("CREATE TABLE "+ANIMALGIFT_TABLE_NAME+"("+ANIMALGIFT_COLUMN_KEY+" INTEGER NOT NULL, "
                                                                 +ANIMALGIFT_COLUMN_DAY+" INTEGER NOT NULL, "
                       +"PRIMARY KEY ("+ANIMALGIFT_COLUMN_KEY+","+ANIMALGIFT_COLUMN_DAY+"))");
+
+            db.execSQL(String.format("CREATE TABLE %s (%s INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "+
+                                                      "%s INTEGER NOT NULL, "+
+                                                      "%s REAL NOT NULL, "+
+                                                      "%s INTEGER NULL)",
+                    ANIMAL_TABLE_NAME,
+                    ANIMAL_COLUMN_ID, ANIMAL_COLUMN_TYPE, ANIMAL_COLUMN_FOOD, ANIMAL_COLUMN_PRICE));
+
+            db.execSQL(String.format("CREATE TABLE %s (%s INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "+
+                                                      "%s INTEGER NOT NULL, "+
+                                                      "%s INTEGER NOT NULL, "+
+                                                      "%s REAL NOT NULL)",
+                    SYNCQUEUE_TABLE_NAME,
+                    SYNCQUEUE_COLUMN_ID, SYNCQUEUE_COLUMN_TYPE, SYNCQUEUE_COLUMN_VALUE1, SYNCQUEUE_COLUMN_VALUE2));
+
         } catch (SQLException e) {
             successful = false;
             Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -97,6 +126,24 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
                 contentValues.put(PROPERTY_COLUMN_KEY, PROPERTY_FOOD);
                 contentValues.put(PROPERTY_COLUMN_VALUE, 0.0);
                 successful &= (-1 != db.insert(PROPERTY_TABLE_NAME, null, contentValues));
+            }
+
+            if (oldVersion < 4) {
+                db.execSQL(String.format("CREATE TABLE %s (%s INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "+
+                                                          "%s INTEGER NOT NULL, "+
+                                                          "%s REAL NOT NULL, "+
+                                                          "%s INTEGER NULL)",
+                        ANIMAL_TABLE_NAME,
+                        ANIMAL_COLUMN_ID, ANIMAL_COLUMN_TYPE, ANIMAL_COLUMN_FOOD, ANIMAL_COLUMN_PRICE));
+            }
+
+            if (oldVersion < 5) {
+                db.execSQL(String.format("CREATE TABLE %s (%s INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "+
+                                                          "%s INTEGER NOT NULL, "+
+                                                          "%s INTEGER NOT NULL, "+
+                                                          "%s REAL NOT NULL)",
+                        SYNCQUEUE_TABLE_NAME,
+                        SYNCQUEUE_COLUMN_ID, SYNCQUEUE_COLUMN_TYPE, SYNCQUEUE_COLUMN_VALUE1, SYNCQUEUE_COLUMN_VALUE2));
             }
         } catch (SQLException e) {
             successful = false;
@@ -211,6 +258,43 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
                 cursor.close();
             }
         }
+    }
+
+    public boolean addEvent(SyncQueueManager.Event event) {
+        boolean successful = true;
+        SQLiteDatabase dbInTransaction = StartTransaction();
+        try {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(SYNCQUEUE_COLUMN_TYPE, event.getEventType());
+            contentValues.put(SYNCQUEUE_COLUMN_VALUE1, event.getValue1());
+            contentValues.put(SYNCQUEUE_COLUMN_VALUE2, event.getValue2());
+            event.setId(dbInTransaction.insert(SYNCQUEUE_TABLE_NAME, null, contentValues));
+            successful &= (-1L != event.getId());
+        } catch (SQLException e) {
+            successful = false;
+            Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+        EndTransaction(dbInTransaction, successful);
+        return successful;
+    }
+
+    public boolean updateEvent(SyncQueueManager.Event event) {
+        boolean successful = true;
+        SQLiteDatabase dbInTransaction = StartTransaction();
+        try {
+            dbInTransaction.execSQL("UPDATE "+SYNCQUEUE_TABLE_NAME
+                                   +" SET "+SYNCQUEUE_COLUMN_VALUE1+" = ?,"
+                                           +SYNCQUEUE_COLUMN_VALUE2+" = ?"
+                                   +" WHERE "+SYNCQUEUE_COLUMN_ID+"=?",
+                    new String[] {Integer.toString(event.getValue1()),
+                                  Double.toString(event.getValue2()),
+                                  Long.toString(event.getId())});
+        } catch (SQLException e) {
+            successful = false;
+            Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+        EndTransaction(dbInTransaction, successful);
+        return successful;
     }
 
     public int GetIntProperty(final String property) {
