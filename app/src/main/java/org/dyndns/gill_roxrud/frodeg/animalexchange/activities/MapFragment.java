@@ -21,6 +21,7 @@ import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeDBHelper;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.SyncQueueManager;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.overlays.AnimalGiftOverlay;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.overlays.MyLocationOverlay;
 import org.osmdroid.config.Configuration;
@@ -204,10 +205,10 @@ public class MapFragment extends Fragment implements LocationListener, MapListen
 
         try {
             GameState gameState = GameState.getInstance();
-            AnimalExchangeDBHelper db = gameState.getDB();
+            SyncQueueManager syncQueueManager = gameState.getSyncQueueManager();
 
             view = getView().findViewById(R.id.food);
-            view.setText(Integer.toString((int)db.GetFood()));
+            view.setText(Integer.toString((int)syncQueueManager.getFood()));
         } catch(NullPointerException e) {}
     }
 

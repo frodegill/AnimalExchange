@@ -64,6 +64,10 @@ public class Animal {
         return cachedSquareBitmap;
     }
 
+    public int getLevel() {
+        return level;
+    }
+
     public boolean containsDistributionValue(final long distributionValue) {
         return (distributionValue>=distributionFrom && distributionValue<=distributionTo);
     }

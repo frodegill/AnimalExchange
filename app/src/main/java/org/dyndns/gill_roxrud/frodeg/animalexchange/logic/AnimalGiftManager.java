@@ -1,5 +1,9 @@
 package org.dyndns.gill_roxrud.frodeg.animalexchange.logic;
 
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.widget.Toast;
+
 import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeDBHelper;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
@@ -48,17 +52,39 @@ public class AnimalGiftManager {
                                                      FromVerticalGift(p.getY() + offset.getY()));
 
         if (GIFT_SIZE_RADIUS >= AnimalManager.CalculateDistance(pos, nearest_gift_pos)) {
+            GameState gameState = GameState.getInstance();
+            AnimalExchangeDBHelper db = gameState.getDB();
+
             int animalGiftKey = ToAnimalGiftKey(p.getX(), p.getY());
-            if (GameState.getInstance().getDB().PersistAnimalT(animalGiftKey, day)) {
+
+            Animal animal = null;
+            boolean successful;
+            SQLiteDatabase dbInTransaction = db.StartTransaction();
+            try {
                 if (giftsAwarded == null || awardDay != day) {
                     giftsAwarded = new HashSet<>();
                     awardDay = day;
                 }
-                giftsAwarded.add(animalGiftKey);
 
-                long distributionValue = AnimalManager.calculateAnimalDistributionValue(p.getX(), p.getY(), day);
-                return GameState.getInstance().getAnimalManager().getAnimalFromDistributionValue(distributionValue);
+                successful = db.PersistAnimal(dbInTransaction, animalGiftKey, day);
+
+                if (successful) {
+                    long distributionValue = AnimalManager.calculateAnimalDistributionValue(p.getX(), p.getY(), day);
+                    animal = gameState.getAnimalManager().getAnimalFromDistributionValue(distributionValue);
+                    successful = gameState.getSyncQueueManager().append(dbInTransaction, SyncQueueEvent.RECEIVE_GIFT,
+                            animal.getLevel(),
+                            SyncQueueEvent.IGNORE_V2);
+                }
+
+                if (successful) {
+                    giftsAwarded.add(animalGiftKey);
+                }
+            } catch (SQLException e) {
+                successful = false;
+                Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
+            db.EndTransaction(dbInTransaction, successful);
+            return successful ? animal : null;
         }
         return null;
     }

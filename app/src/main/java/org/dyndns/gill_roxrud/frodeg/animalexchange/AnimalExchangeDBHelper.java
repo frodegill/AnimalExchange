@@ -8,9 +8,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.Toast;
 
+import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.SyncQueueEvent;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.SyncQueueManager;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -43,8 +46,6 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
     public static final String PROPERTY_Y_POS         = "y_pos";
     public static final String PROPERTY_ZOOM_LEVEL    = "zoom_level";
     public static final String PROPERTY_FOOD          = "food";
-
-    private Double cachedFood = null;
 
 
     public AnimalExchangeDBHelper(Context context) {
@@ -168,11 +169,7 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
         db.endTransaction();
     }
 
-    public boolean PersistFoodT(final double food) {
-        if (cachedFood == null) {
-            GetFood(); //Initialize cache
-        }
-
+    private boolean PersistFoodT(final double food) {
         boolean successful = true;
         SQLiteDatabase dbInTransaction = StartTransaction();
         try {
@@ -186,34 +183,14 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
         }
         EndTransaction(dbInTransaction, successful);
 
-        if (successful) {
-            cachedFood += food;
-        }
-
         return successful;
     }
 
-    public double GetFood() {
-        if (cachedFood == null) {
-            cachedFood = new Double(GetDoubleProperty(PROPERTY_FOOD));
-        }
-        return cachedFood.doubleValue();
-    }
-
-    public boolean PersistAnimalT(final int giftKey, final int day) {
-        boolean successful = true;
-        SQLiteDatabase dbInTransaction = StartTransaction();
-        try {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(ANIMALGIFT_COLUMN_KEY, giftKey);
-            contentValues.put(ANIMALGIFT_COLUMN_DAY, day);
-            successful &= (-1 != dbInTransaction.insert(ANIMALGIFT_TABLE_NAME, null, contentValues));
-        } catch (SQLException e) {
-            successful = false;
-            Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-        EndTransaction(dbInTransaction, successful);
-        return successful;
+    public boolean PersistAnimal(final SQLiteDatabase dbInTransaction, final int giftKey, final int day) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ANIMALGIFT_COLUMN_KEY, giftKey);
+        contentValues.put(ANIMALGIFT_COLUMN_DAY, day);
+        return (-1 != dbInTransaction.insert(ANIMALGIFT_TABLE_NAME, null, contentValues));
     }
 
     private void purgeOldAnimalGifts(final SQLiteDatabase dbInTransaction, final int day) throws SQLException {
@@ -260,41 +237,55 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public boolean addEvent(SyncQueueManager.Event event) {
-        boolean successful = true;
-        SQLiteDatabase dbInTransaction = StartTransaction();
-        try {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(SYNCQUEUE_COLUMN_TYPE, event.getEventType());
-            contentValues.put(SYNCQUEUE_COLUMN_VALUE1, event.getValue1());
-            contentValues.put(SYNCQUEUE_COLUMN_VALUE2, event.getValue2());
-            event.setId(dbInTransaction.insert(SYNCQUEUE_TABLE_NAME, null, contentValues));
-            successful &= (-1L != event.getId());
-        } catch (SQLException e) {
-            successful = false;
-            Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-        EndTransaction(dbInTransaction, successful);
-        return successful;
+    public boolean addEvent(final SQLiteDatabase dbInTransaction, SyncQueueEvent event) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(SYNCQUEUE_COLUMN_TYPE, event.getEventType());
+        contentValues.put(SYNCQUEUE_COLUMN_VALUE1, event.getValue1());
+        contentValues.put(SYNCQUEUE_COLUMN_VALUE2, event.getValue2());
+        event.setId(dbInTransaction.insert(SYNCQUEUE_TABLE_NAME, null, contentValues));
+        return -1L != event.getId();
     }
 
-    public boolean updateEvent(SyncQueueManager.Event event) {
-        boolean successful = true;
-        SQLiteDatabase dbInTransaction = StartTransaction();
+    public void updateEvent(final SQLiteDatabase dbInTransaction, SyncQueueEvent event) {
+        dbInTransaction.execSQL("UPDATE "+SYNCQUEUE_TABLE_NAME
+                               +" SET "+SYNCQUEUE_COLUMN_VALUE1+" = ?,"
+                                       +SYNCQUEUE_COLUMN_VALUE2+" = ?"
+                               +" WHERE "+SYNCQUEUE_COLUMN_ID+"=?",
+                new String[] {Integer.toString(event.getValue1()),
+                              Double.toString(event.getValue2()),
+                              Long.toString(event.getId())});
+    }
+
+    public List<SyncQueueEvent> getSyncQueue() {
+        List<SyncQueueEvent> result = new ArrayList<>();
+
+        Cursor cursor = null;
         try {
-            dbInTransaction.execSQL("UPDATE "+SYNCQUEUE_TABLE_NAME
-                                   +" SET "+SYNCQUEUE_COLUMN_VALUE1+" = ?,"
-                                           +SYNCQUEUE_COLUMN_VALUE2+" = ?"
-                                   +" WHERE "+SYNCQUEUE_COLUMN_ID+"=?",
-                    new String[] {Integer.toString(event.getValue1()),
-                                  Double.toString(event.getValue2()),
-                                  Long.toString(event.getId())});
-        } catch (SQLException e) {
-            successful = false;
-            Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            cursor = this.getReadableDatabase()
+                    .rawQuery("SELECT " + SYNCQUEUE_COLUMN_ID
+                              +", " + SYNCQUEUE_COLUMN_TYPE
+                              +", " + SYNCQUEUE_COLUMN_VALUE1
+                              +", " + SYNCQUEUE_COLUMN_VALUE2
+                              +" FROM " + SYNCQUEUE_TABLE_NAME
+                              +" ORDER BY " + SYNCQUEUE_COLUMN_ID + " ASC",
+                            null);
+            if (cursor.moveToFirst()) {
+                while (!cursor.isAfterLast()) {
+                    SyncQueueEvent event = new SyncQueueEvent(cursor.getInt(1),
+                                                              cursor.getInt(2),
+                                                              cursor.getDouble(3));
+                    event.setId(cursor.getInt(0));
+                    result.add(event);
+                    cursor.moveToNext();
+                }
+            }
+            return result;
         }
-        EndTransaction(dbInTransaction, successful);
-        return successful;
+        finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     public int GetIntProperty(final String property) {

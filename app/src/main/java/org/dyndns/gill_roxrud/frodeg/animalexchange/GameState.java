@@ -5,6 +5,7 @@ import android.content.Context;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.activities.MapFragment;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalGiftManager;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalManager;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.SyncQueueManager;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -17,6 +18,7 @@ public class GameState {
     private final AnimalManager animalManager;
     private final AnimalGiftManager animalGiftManager;
     private final AnimalExchangeDBHelper db;
+    private final SyncQueueManager syncQueueManager;
 
     private final Point<Double> currentPos = new Point<>(AnimalExchangeApplication.EAST+1.0, AnimalExchangeApplication.NORTH+1.0);
 
@@ -26,6 +28,7 @@ public class GameState {
         animalManager = new AnimalManager();
         animalGiftManager = new AnimalGiftManager();
         db = new AnimalExchangeDBHelper(context);
+        syncQueueManager = new SyncQueueManager();
     }
 
     public static GameState getInstance() {
@@ -45,6 +48,10 @@ public class GameState {
 
     public AnimalExchangeDBHelper getDB() {
         return db;
+    }
+
+    public SyncQueueManager getSyncQueueManager() {
+        return syncQueueManager;
     }
 
     public boolean getUseDataConnection() {

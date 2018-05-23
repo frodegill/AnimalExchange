@@ -265,7 +265,9 @@ public class AnimalManager {
 
         movementInfo.speed = movementInfo.food/(timespanMillis/3600.0); // km/h
         if (AnimalExchangeApplication.MAX_ALLOWED_SPEED >= movementInfo.speed) {
-            if (!GameState.getInstance().getDB().PersistFoodT(movementInfo.food)) {
+            if (!GameState.getInstance().getSyncQueueManager().appendT(SyncQueueEvent.RECEIVE_FOOD,
+                                                                      SyncQueueEvent.IGNORE_V1,
+                                                                      movementInfo.food)) {
                 movementInfo.food = 0.0;
             }
         }
