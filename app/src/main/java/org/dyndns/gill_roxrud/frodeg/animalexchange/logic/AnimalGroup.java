@@ -22,7 +22,7 @@ public class AnimalGroup {
         return ctx.getString(id);
     }
 
-    public void addAnimal(final Integer animal) {
-        animalList.add(animal);
+    public void addAnimal(final Integer animalId) {
+        animalList.add(animalId);
     }
 }

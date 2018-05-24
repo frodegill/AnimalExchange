@@ -4,7 +4,7 @@ import android.graphics.*;
 import android.graphics.Point;
 
 import org.dyndns.gill_roxrud.frodeg.animalexchange.*;
-import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.Animal;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalDefinition;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalGiftManager;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalManager;
 import org.osmdroid.api.IGeoPoint;
@@ -70,12 +70,12 @@ public class AnimalGiftOverlay extends Overlay {
                 point = pj.toPixels(animalGiftManager.GeoPointFromGrid(x, y, day), point, true);
 
                 long distributionValue = AnimalManager.calculateAnimalDistributionValue(x, y, day);
-                Animal animal = animalManager.getAnimalFromDistributionValue(distributionValue);
+                AnimalDefinition animalDef = animalManager.getAnimalFromDistributionValue(distributionValue);
                 Bitmap animalBitmap;
                 if (AnimalManager.isHiddenAnimalGift(distributionValue)) {
                     animalBitmap = animalManager.getHiddenAnimalGiftBitmap(AnimalExchangeApplication.getContext(), animalImageSize);
                 } else {
-                    animalBitmap = animal.getRoundedBitmap(AnimalExchangeApplication.getContext(), animalImageSize);
+                    animalBitmap = animalDef.getRoundedBitmap(AnimalExchangeApplication.getContext(), animalImageSize);
                 }
                 canvas.drawBitmap(animalBitmap, point.x-radius, point.y-radius, null);
 

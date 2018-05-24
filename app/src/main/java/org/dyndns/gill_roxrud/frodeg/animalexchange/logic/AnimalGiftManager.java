@@ -70,10 +70,11 @@ public class AnimalGiftManager {
 
                 if (successful) {
                     long distributionValue = AnimalManager.calculateAnimalDistributionValue(p.getX(), p.getY(), day);
-                    animal = gameState.getAnimalManager().getAnimalFromDistributionValue(distributionValue);
-                    successful = gameState.getSyncQueueManager().append(dbInTransaction, SyncQueueEvent.RECEIVE_GIFT,
-                            animal.getLevel(),
-                            SyncQueueEvent.IGNORE_V2);
+                    animal = gameState.getAnimalManager().createAnimalInstanceFromDistributionValue(distributionValue);
+                    successful = gameState.getSyncQueueManager().append(dbInTransaction,
+                                                                        SyncQueueEvent.RECEIVE_GIFT,
+                                                                        animal.getLevel(),
+                                                                        SyncQueueEvent.IGNORE_V2);
                 }
 
                 if (successful) {

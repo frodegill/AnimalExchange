@@ -8,7 +8,6 @@ import android.util.SparseArray;
 
 import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
-import org.dyndns.gill_roxrud.frodeg.animalexchange.InvalidPositionException;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.Point;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
 
@@ -16,7 +15,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.TimeZone;
 
 /*
@@ -26,12 +24,10 @@ import java.util.TimeZone;
 
 public class AnimalManager {
 
-    private static AnimalManager instance = null;
-
     private final SparseArray<AnimalGroup> animalGroupMap = new SparseArray<>();
     private final ArrayList<AnimalGroup> animalGroupArray = new ArrayList<>();
-    private final SparseArray<Animal> animalMap = new SparseArray<>();
-    private final ArrayList<Animal> animalArray = new ArrayList<>();
+    private final SparseArray<AnimalDefinition> animalDefMap = new SparseArray<>();
+    private final ArrayList<AnimalDefinition> animalDefArray = new ArrayList<>();
 
     private Bitmap cachedHiddenAnimalGiftBitmap = null;
     private int cachedHiddenAnimalGiftBitmapSize = -1;
@@ -69,119 +65,119 @@ public class AnimalManager {
     }
 
     private void initializeAnimals() {
-        addAnimal(0, R.string.cat, R.drawable.square_cat, R.drawable.rounded_cat,
+        addAnimalDefinition(0, R.string.cat, R.drawable.square_cat, R.drawable.rounded_cat,
                   R.string.domesticanimals_bronze, 0L, 827834137L, 250);
-        addAnimal( 1, R.string.dog, R.drawable.square_dog, R.drawable.rounded_dog,
+        addAnimalDefinition( 1, R.string.dog, R.drawable.square_dog, R.drawable.rounded_dog,
                   R.string.domesticanimals_bronze, 827834138L,1655668274L, 252);
-        addAnimal( 2, R.string.guinea_pig, R.drawable.square_guinea_pig, R.drawable.rounded_guinea_pig,
+        addAnimalDefinition( 2, R.string.guinea_pig, R.drawable.square_guinea_pig, R.drawable.rounded_guinea_pig,
                   R.string.domesticanimals_silver, 1655668275L,2483502412L, 257);
-        addAnimal( 3, R.string.rabbit, R.drawable.square_rabbit, R.drawable.rounded_rabbit,
+        addAnimalDefinition( 3, R.string.rabbit, R.drawable.square_rabbit, R.drawable.rounded_rabbit,
                   R.string.domesticanimals_bronze, 2483502413L,3311336549L, 267);
-        addAnimal( 4, R.string.donkey, R.drawable.square_donkey, R.drawable.rounded_donkey,
+        addAnimalDefinition( 4, R.string.donkey, R.drawable.square_donkey, R.drawable.rounded_donkey,
                   R.string.domesticanimals_silver, 3311336550L,3614511133L, 280);
-        addAnimal( 5, R.string.hamster, R.drawable.square_hamster, R.drawable.rounded_hamster,
+        addAnimalDefinition( 5, R.string.hamster, R.drawable.square_hamster, R.drawable.rounded_hamster,
                   R.string.domesticanimals_bronze, 3614511134L,3824241275L, 297);
-        addAnimal( 6, R.string.pig, R.drawable.square_pig, R.drawable.rounded_pig,
+        addAnimalDefinition( 6, R.string.pig, R.drawable.square_pig, R.drawable.rounded_pig,
                   R.string.domesticanimals_gold, 3824241276L,3969328412L, 317);
-        addAnimal( 7, R.string.sheep, R.drawable.square_sheep, R.drawable.rounded_sheep,
+        addAnimalDefinition( 7, R.string.sheep, R.drawable.square_sheep, R.drawable.rounded_sheep,
                   R.string.domesticanimals_silver, 3969328413L,4069696805L, 341);
-        addAnimal( 8, R.string.horse, R.drawable.square_horse, R.drawable.rounded_horse,
+        addAnimalDefinition( 8, R.string.horse, R.drawable.square_horse, R.drawable.rounded_horse,
                   R.string.domesticanimals_gold, 4069696806L,4139129661L, 369);
-        addAnimal( 9, R.string.cow, R.drawable.square_cow, R.drawable.rounded_cow,
+        addAnimalDefinition( 9, R.string.cow, R.drawable.square_cow, R.drawable.rounded_cow,
                   R.string.domesticanimals_silver, 4139129662L,4187161928L, 401);
-        addAnimal(10, R.string.shrimp, R.drawable.square_shrimp, R.drawable.rounded_shrimp,
+        addAnimalDefinition(10, R.string.shrimp, R.drawable.square_shrimp, R.drawable.rounded_shrimp,
                   R.string.seaanimals_silver, 4187161929L,4220389694L, 436);
-        addAnimal(11, R.string.goat, R.drawable.square_goat, R.drawable.rounded_goat,
+        addAnimalDefinition(11, R.string.goat, R.drawable.square_goat, R.drawable.rounded_goat,
                   R.string.domesticanimals_gold, 4220389695L,4243376001L, 474);
-        addAnimal(12, R.string.crab, R.drawable.square_crab, R.drawable.rounded_crab,
+        addAnimalDefinition(12, R.string.crab, R.drawable.square_crab, R.drawable.rounded_crab,
                   R.string.seaanimals_silver, 4243376002L,4259277471L, 517);
-        addAnimal(13, R.string.salmon, R.drawable.square_salmon, R.drawable.rounded_salmon,
+        addAnimalDefinition(13, R.string.salmon, R.drawable.square_salmon, R.drawable.rounded_salmon,
                   R.string.seaanimals_gold, 4259277472L,4270277791L, 562);
-        addAnimal(14, R.string.tuna, R.drawable.square_tuna, R.drawable.rounded_tuna,
+        addAnimalDefinition(14, R.string.tuna, R.drawable.square_tuna, R.drawable.rounded_tuna,
                   R.string.seaanimals_silver, 4270277792L,4277887593L, 612);
-        addAnimal(15, R.string.lobster, R.drawable.square_lobster, R.drawable.rounded_lobster,
+        addAnimalDefinition(15, R.string.lobster, R.drawable.square_lobster, R.drawable.rounded_lobster,
                   R.string.seaanimals_gold, 4277887594L,4283151903L, 664);
-        addAnimal(16, R.string.hermitcrab, R.drawable.square_hermitcrab, R.drawable.rounded_hermitcrab,
+        addAnimalDefinition(16, R.string.hermitcrab, R.drawable.square_hermitcrab, R.drawable.rounded_hermitcrab,
                   R.string.seaanimals_silver, 4283151904L,4286793647L, 720);
-        addAnimal(17, R.string.hen, R.drawable.square_hen, R.drawable.rounded_hen,
+        addAnimalDefinition(17, R.string.hen, R.drawable.square_hen, R.drawable.rounded_hen,
                   R.string.domesticbirds_silver, 4286793648L,4289312933L, 780);
-        addAnimal(18, R.string.halibut, R.drawable.square_halibut, R.drawable.rounded_halibut,
+        addAnimalDefinition(18, R.string.halibut, R.drawable.square_halibut, R.drawable.rounded_halibut,
                   R.string.seaanimals_gold, 4289312934L,4291055725L, 843);
-        addAnimal(19, R.string.turkey, R.drawable.square_turkey, R.drawable.rounded_turkey,
+        addAnimalDefinition(19, R.string.turkey, R.drawable.square_turkey, R.drawable.rounded_turkey,
                   R.string.domesticbirds_gold, 4291055726L,4292261354L, 909);
-        addAnimal(20, R.string.dove, R.drawable.square_dove, R.drawable.rounded_dove,
+        addAnimalDefinition(20, R.string.dove, R.drawable.square_dove, R.drawable.rounded_dove,
                   R.string.domesticbirds_silver, 4292261355L,4293095384L, 978);
-        addAnimal(21, R.string.duck, R.drawable.square_duck, R.drawable.rounded_duck,
+        addAnimalDefinition(21, R.string.duck, R.drawable.square_duck, R.drawable.rounded_duck,
                   R.string.domesticbirds_gold, 4293095385L,4293672349L,1051);
-        addAnimal(22, R.string.goose, R.drawable.square_goose, R.drawable.rounded_goose,
+        addAnimalDefinition(22, R.string.goose, R.drawable.square_goose, R.drawable.rounded_goose,
                   R.string.domesticbirds_silver, 4293672350L,4294071482L,1126);
-        addAnimal(23, R.string.squirrel, R.drawable.square_squirrel, R.drawable.rounded_squirrel,
+        addAnimalDefinition(23, R.string.squirrel, R.drawable.square_squirrel, R.drawable.rounded_squirrel,
                   R.string.wildanimals_bronze, 4294071483L,4294347594L,1205);
-        addAnimal(24, R.string.guineafowl, R.drawable.square_guineafowl, R.drawable.rounded_guineafowl,
+        addAnimalDefinition(24, R.string.guineafowl, R.drawable.square_guineafowl, R.drawable.rounded_guineafowl,
                   R.string.domesticbirds_gold, 4294347595L,4294538603L,1286);
-        addAnimal(25, R.string.hare, R.drawable.square_hare, R.drawable.rounded_hare,
+        addAnimalDefinition(25, R.string.hare, R.drawable.square_hare, R.drawable.rounded_hare,
                   R.string.wildanimals_bronze, 4294538604L,4294670739L,1371);
-        addAnimal(26, R.string.peacock, R.drawable.square_peacock, R.drawable.rounded_peacock,
+        addAnimalDefinition(26, R.string.peacock, R.drawable.square_peacock, R.drawable.rounded_peacock,
                   R.string.domesticbirds_gold, 4294670740L,4294762148L,1458);
-        addAnimal(27, R.string.fox, R.drawable.square_fox, R.drawable.rounded_fox,
+        addAnimalDefinition(27, R.string.fox, R.drawable.square_fox, R.drawable.rounded_fox,
                   R.string.wildanimals_silver, 4294762149L,4294825383L,1548);
-        addAnimal(28, R.string.hedgehog, R.drawable.square_hedgehog, R.drawable.rounded_hedgehog,
+        addAnimalDefinition(28, R.string.hedgehog, R.drawable.square_hedgehog, R.drawable.rounded_hedgehog,
                   R.string.wildanimals_bronze, 4294825384L,4294869127L,1641);
-        addAnimal(29, R.string.stoat, R.drawable.square_stoat, R.drawable.rounded_stoat,
+        addAnimalDefinition(29, R.string.stoat, R.drawable.square_stoat, R.drawable.rounded_stoat,
                   R.string.wildanimals_silver, 4294869128L,4294899388L,1737);
-        addAnimal(30, R.string.moose, R.drawable.square_moose, R.drawable.rounded_moose,
+        addAnimalDefinition(30, R.string.moose, R.drawable.square_moose, R.drawable.rounded_moose,
                   R.string.wildanimals_bronze, 4294899389L,4294920322L,1835);
-        addAnimal(31, R.string.bear, R.drawable.square_bear, R.drawable.rounded_bear,
+        addAnimalDefinition(31, R.string.bear, R.drawable.square_bear, R.drawable.rounded_bear,
                   R.string.wildanimals_gold, 4294920323L,4294934804L,1935);
-        addAnimal(32, R.string.deer, R.drawable.square_deer, R.drawable.rounded_deer,
+        addAnimalDefinition(32, R.string.deer, R.drawable.square_deer, R.drawable.rounded_deer,
                   R.string.wildanimals_silver, 4294934805L,4294944822L,2038);
-        addAnimal(33, R.string.lynx, R.drawable.square_lynx, R.drawable.rounded_lynx,
+        addAnimalDefinition(33, R.string.lynx, R.drawable.square_lynx, R.drawable.rounded_lynx,
                   R.string.wildanimals_gold, 4294944823L,4294951752L,2144);
-        addAnimal(34, R.string.boar, R.drawable.square_boar, R.drawable.rounded_boar,
+        addAnimalDefinition(34, R.string.boar, R.drawable.square_boar, R.drawable.rounded_boar,
                   R.string.wildanimals_silver, 4294951753L,4294956546L,2251);
-        addAnimal(35, R.string.parakeet, R.drawable.square_parakeet, R.drawable.rounded_parakeet,
+        addAnimalDefinition(35, R.string.parakeet, R.drawable.square_parakeet, R.drawable.rounded_parakeet,
                   R.string.exoticbirds_silver, 4294956547L,4294959862L,2361);
-        addAnimal(36, R.string.wolf, R.drawable.square_wolf, R.drawable.rounded_wolf,
+        addAnimalDefinition(36, R.string.wolf, R.drawable.square_wolf, R.drawable.rounded_wolf,
                   R.string.wildanimals_gold, 4294959863L,4294962156L,2473);
-        addAnimal(37, R.string.eagle, R.drawable.square_eagle, R.drawable.rounded_eagle,
+        addAnimalDefinition(37, R.string.eagle, R.drawable.square_eagle, R.drawable.rounded_eagle,
                   R.string.wildanimals_gold, 4294962157L,4294963743L,2587);
-        addAnimal(38, R.string.ostrich, R.drawable.square_ostrich, R.drawable.rounded_ostrich,
+        addAnimalDefinition(38, R.string.ostrich, R.drawable.square_ostrich, R.drawable.rounded_ostrich,
                   R.string.exoticbirds_silver, 4294963744L,4294964841L,2702);
-        addAnimal(39, R.string.polarbear, R.drawable.square_polarbear, R.drawable.rounded_polarbear,
+        addAnimalDefinition(39, R.string.polarbear, R.drawable.square_polarbear, R.drawable.rounded_polarbear,
                   R.string.wildanimals_gold, 4294964842L,4294965600L,2820);
-        addAnimal(40, R.string.falcon, R.drawable.square_falcon, R.drawable.rounded_falcon,
+        addAnimalDefinition(40, R.string.falcon, R.drawable.square_falcon, R.drawable.rounded_falcon,
                   R.string.exoticbirds_gold, 4294965601L,4294966125L,2939);
-        addAnimal(41, R.string.owl, R.drawable.square_owl, R.drawable.rounded_owl,
+        addAnimalDefinition(41, R.string.owl, R.drawable.square_owl, R.drawable.rounded_owl,
                   R.string.exoticbirds_silver, 4294966126L,4294966488L,3060);
-        addAnimal(42, R.string.parrot, R.drawable.square_parrot, R.drawable.rounded_parrot,
+        addAnimalDefinition(42, R.string.parrot, R.drawable.square_parrot, R.drawable.rounded_parrot,
                   R.string.exoticbirds_gold, 4294966489L,4294966739L,3182);
-        addAnimal(43, R.string.camel, R.drawable.square_camel, R.drawable.rounded_camel,
+        addAnimalDefinition(43, R.string.camel, R.drawable.square_camel, R.drawable.rounded_camel,
                   R.string.exoticanimals_bronze, 4294966740L,4294966912L,3306);
-        addAnimal(44, R.string.kingfisher, R.drawable.square_kingfisher, R.drawable.rounded_kingfisher,
+        addAnimalDefinition(44, R.string.kingfisher, R.drawable.square_kingfisher, R.drawable.rounded_kingfisher,
                   R.string.exoticbirds_gold, 4294966913L,4294967032L,3431);
-        addAnimal(45, R.string.hippo, R.drawable.square_hippo, R.drawable.rounded_hippo,
+        addAnimalDefinition(45, R.string.hippo, R.drawable.square_hippo, R.drawable.rounded_hippo,
                   R.string.exoticanimals_bronze, 4294967033L,4294967115L,3558);
-        addAnimal(46, R.string.eagle_owl, R.drawable.square_eagle_owl, R.drawable.rounded_eagle_owl,
+        addAnimalDefinition(46, R.string.eagle_owl, R.drawable.square_eagle_owl, R.drawable.rounded_eagle_owl,
                   R.string.exoticbirds_gold, 4294967116L,4294967172L,3685);
-        addAnimal(47, R.string.lion, R.drawable.square_lion, R.drawable.rounded_lion,
+        addAnimalDefinition(47, R.string.lion, R.drawable.square_lion, R.drawable.rounded_lion,
                   R.string.exoticanimals_silver, 4294967173L,4294967211L,3814);
-        addAnimal(48, R.string.zebra, R.drawable.square_zebra, R.drawable.rounded_zebra,
+        addAnimalDefinition(48, R.string.zebra, R.drawable.square_zebra, R.drawable.rounded_zebra,
                   R.string.exoticanimals_bronze, 4294967212L,4294967238L,3943);
-        addAnimal(49, R.string.giraffe, R.drawable.square_giraffe, R.drawable.rounded_giraffe,
+        addAnimalDefinition(49, R.string.giraffe, R.drawable.square_giraffe, R.drawable.rounded_giraffe,
                   R.string.exoticanimals_silver, 4294967239L,4294967257L,4073);
-        addAnimal(50, R.string.elephant, R.drawable.square_elephant, R.drawable.rounded_elephant,
+        addAnimalDefinition(50, R.string.elephant, R.drawable.square_elephant, R.drawable.rounded_elephant,
                   R.string.exoticanimals_bronze,4294967258L,4294967270L,4204);
-        addAnimal(51, R.string.leopard, R.drawable.square_leopard, R.drawable.rounded_leopard,
+        addAnimalDefinition(51, R.string.leopard, R.drawable.square_leopard, R.drawable.rounded_leopard,
                   R.string.exoticanimals_gold, 4294967271L,4294967279L,4336);
-        addAnimal(52, R.string.kangaroo, R.drawable.square_kangaroo, R.drawable.rounded_kangaroo,
+        addAnimalDefinition(52, R.string.kangaroo, R.drawable.square_kangaroo, R.drawable.rounded_kangaroo,
                   R.string.exoticanimals_silver, 4294967280L,4294967285L,4468);
-        addAnimal(53, R.string.rhino, R.drawable.square_rhino, R.drawable.rounded_rhino,
+        addAnimalDefinition(53, R.string.rhino, R.drawable.square_rhino, R.drawable.rounded_rhino,
                   R.string.exoticanimals_gold, 4294967286L,4294967289L,4601);
-        addAnimal(54, R.string.tiger, R.drawable.square_tiger, R.drawable.rounded_tiger,
+        addAnimalDefinition(54, R.string.tiger, R.drawable.square_tiger, R.drawable.rounded_tiger,
                   R.string.exoticanimals_silver, 4294967290L,4294967292L,4734);
-        addAnimal(55, R.string.panda, R.drawable.square_panda, R.drawable.rounded_panda,
+        addAnimalDefinition(55, R.string.panda, R.drawable.square_panda, R.drawable.rounded_panda,
                   R.string.exoticanimals_gold, 4294967293L,4294967294L,4867);
-        addAnimal(56, R.string.red_panda, R.drawable.square_red_panda, R.drawable.rounded_red_panda,
+        addAnimalDefinition(56, R.string.red_panda, R.drawable.square_red_panda, R.drawable.rounded_red_panda,
                   R.string.exoticanimals_gold, 4294967295L,4294967295L,5000);
     }
 
@@ -191,12 +187,12 @@ public class AnimalManager {
         animalGroupArray.add(level, animalGroup);
     }
 
-    private void addAnimal(final int level, final int id, final int square_id, final int rounded_id, final int group_id,
-                           final long distributionFrom, final long distributionTo, final int food) {
-        Animal animal = new Animal(level, id, square_id, rounded_id, group_id, distributionFrom, distributionTo, food);
-        animalMap.put(id, animal);
-        animalArray.add(level, animal);
-        getAnimalGroup(group_id).addAnimal(id);
+    private void addAnimalDefinition(final int level, final int stringResourceId, final int square_id, final int rounded_id, final int group_id,
+                                     final long distributionFrom, final long distributionTo, final int food) {
+        AnimalDefinition animalDef = new AnimalDefinition(level, stringResourceId, square_id, rounded_id, group_id, distributionFrom, distributionTo, food);
+        animalDefMap.put(stringResourceId, animalDef);
+        animalDefArray.add(level, animalDef);
+        getAnimalGroup(group_id).addAnimal(stringResourceId);
     }
 
     AnimalGroup getAnimalGroup(final int id) {
@@ -207,21 +203,25 @@ public class AnimalManager {
         return animalGroupArray.get(level);
     }
 
-    Animal getAnimal(final int id) {
-        return animalMap.get(id);
+    AnimalDefinition getAnimalDefinition(final int animalId) {
+        return animalDefMap.get(animalId);
     }
 
-    Animal getAnimalByLevel(final int level) {
-        return animalArray.get(level);
+    AnimalDefinition getAnimalDefinitionByLevel(final int level) {
+        return animalDefArray.get(level);
     }
 
-    public Animal getAnimalFromDistributionValue(final long value) {
-        for (Animal animal : animalArray) {
-            if (animal.containsDistributionValue(value)) {
-                return animal;
+    public AnimalDefinition getAnimalFromDistributionValue(final long value) {
+        for (AnimalDefinition animalDef : animalDefArray) {
+            if (animalDef.containsDistributionValue(value)) {
+                return animalDef;
             }
         }
         return null;
+    }
+
+    public Animal createAnimalInstanceFromDistributionValue(final long value) {
+        return new Animal(getAnimalFromDistributionValue(value));
     }
 
     public Bitmap getHiddenAnimalGiftBitmap(final Context ctx, final int size) {
