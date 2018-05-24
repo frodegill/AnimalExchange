@@ -55,17 +55,17 @@ public class AnimalGiftManager {
             GameState gameState = GameState.getInstance();
             AnimalExchangeDBHelper db = gameState.getDB();
 
+            if (giftsAwarded == null || awardDay != day) {
+                giftsAwarded = new HashSet<>();
+                awardDay = day;
+            }
+
             int animalGiftKey = ToAnimalGiftKey(p.getX(), p.getY());
 
             Animal animal = null;
             boolean successful;
             SQLiteDatabase dbInTransaction = db.StartTransaction();
             try {
-                if (giftsAwarded == null || awardDay != day) {
-                    giftsAwarded = new HashSet<>();
-                    awardDay = day;
-                }
-
                 successful = db.PersistAnimal(dbInTransaction, animalGiftKey, day);
 
                 if (successful) {
