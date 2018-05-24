@@ -31,11 +31,7 @@ public class SyncQueueManager {
 
         //Update food cache
         for (SyncQueueEvent event : pendingEvents) {
-            switch (event.getEventType()) {
-                case SyncQueueEvent.RECEIVE_FOOD: cachedFood += event.getValue2(); break;
-                case SyncQueueEvent.FEED_ANIMAL:  cachedFood -= event.getValue2(); break;
-                default: break;
-            }
+            addEventToFoodCache(event.getEventType(), event.getValue2());
         }
     }
 
@@ -79,10 +75,21 @@ public class SyncQueueManager {
             }
             pendingEvents.add(newEvent);
         }
+
+        addEventToFoodCache(eventType, v2);
+
         return true;
     }
 
     public double getFood() {
         return cachedFood;
+    }
+
+    private void addEventToFoodCache(final int eventType, final double v2) {
+        switch (eventType) {
+            case SyncQueueEvent.RECEIVE_FOOD: cachedFood += v2; break;
+            case SyncQueueEvent.FEED_ANIMAL:  cachedFood -= v2; break;
+            default: break;
+        }
     }
 }
