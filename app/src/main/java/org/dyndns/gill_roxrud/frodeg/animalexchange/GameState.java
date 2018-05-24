@@ -15,27 +15,26 @@ public class GameState {
 
     private static GameState instance = null;
 
-    private final AnimalManager animalManager;
-    private final AnimalGiftManager animalGiftManager;
-    private final AnimalExchangeDBHelper db;
-    private final SyncQueueManager syncQueueManager;
+    private static AnimalManager animalManager;
+    private static AnimalGiftManager animalGiftManager;
+    private static AnimalExchangeDBHelper db;
+    private static SyncQueueManager syncQueueManager;
 
     private final Point<Double> currentPos = new Point<>(AnimalExchangeApplication.EAST+1.0, AnimalExchangeApplication.NORTH+1.0);
 
 
     private GameState() {
-        Context context = AnimalExchangeApplication.getContext();
-        animalManager = new AnimalManager();
-        animalGiftManager = new AnimalGiftManager();
-        db = new AnimalExchangeDBHelper(context);
-        syncQueueManager = new SyncQueueManager();
     }
 
     public static GameState getInstance() {
-        if (instance == null) {
-            instance = new GameState();
+        if (GameState.instance == null) {
+            GameState.instance = new GameState();
+            GameState.animalManager = new AnimalManager();
+            GameState.animalGiftManager = new AnimalGiftManager();
+            GameState.db = new AnimalExchangeDBHelper(AnimalExchangeApplication.getContext());
+            GameState.syncQueueManager = new SyncQueueManager();
         }
-        return instance;
+        return GameState.instance;
     }
 
     public AnimalManager getAnimalManager() {
