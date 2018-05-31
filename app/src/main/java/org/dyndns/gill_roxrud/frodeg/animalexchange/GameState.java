@@ -69,8 +69,10 @@ public class GameState {
         currentPos.set(x_pos, y_pos);
         try {
             //Two separate transactions, but that is OK. Failing one should not fail both.
-            AnimalManager.MovementInfo movementInfo = animalManager.requestFoodT(currentPos);
-            animalGiftManager.requestAnimalGiftT(currentPos, getDay());
+            AnimalManager.MovementInfo movementInfo = animalManager.requestFoodT(currentPos); //Transaction #1
+            if (0.0<movementInfo.speed && AnimalExchangeApplication.MAX_ALLOWED_SPEED>=movementInfo.speed) {
+                animalGiftManager.requestAnimalGiftT(currentPos, getDay()); //Transaction #2
+            }
 
             mapFragment.onScoreUpdated(movementInfo.speed);
         } catch (InvalidPositionException e) {

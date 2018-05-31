@@ -181,34 +181,36 @@ public class AnimalManager {
                   R.string.exoticanimals_gold, 4294967295L,4294967295L,5000);
     }
 
-    private void addGroup(final int level, final int id) {
-        AnimalGroup animalGroup = new AnimalGroup(level, id);
-        animalGroupMap.put(id, animalGroup);
+    private void addGroup(final int level, final int stringResourceId) {
+        AnimalGroup animalGroup = new AnimalGroup(level, stringResourceId);
+        animalGroupMap.put(stringResourceId, animalGroup);
         animalGroupArray.add(level, animalGroup);
     }
 
-    private void addAnimalDefinition(final int level, final int stringResourceId, final int square_id, final int rounded_id, final int group_id,
+    private void addAnimalDefinition(final int level, final int animalStringResourceId, final int squareId,
+                                     final int roundedId, final int groupStringResourceId,
                                      final long distributionFrom, final long distributionTo, final int food) {
-        AnimalDefinition animalDef = new AnimalDefinition(level, stringResourceId, square_id, rounded_id, group_id, distributionFrom, distributionTo, food);
-        animalDefMap.put(stringResourceId, animalDef);
+        AnimalDefinition animalDef = new AnimalDefinition(level, animalStringResourceId, squareId, roundedId,
+                                                          groupStringResourceId, distributionFrom, distributionTo, food);
+        animalDefMap.put(animalStringResourceId, animalDef);
         animalDefArray.add(level, animalDef);
-        getAnimalGroup(group_id).addAnimal(stringResourceId);
+        getAnimalGroup(groupStringResourceId).addAnimal(animalStringResourceId);
     }
 
-    AnimalGroup getAnimalGroup(final int id) {
-        return animalGroupMap.get(id);
+    public AnimalGroup getAnimalGroup(final int groupStringResourceId) {
+        return animalGroupMap.get(groupStringResourceId);
     }
 
-    AnimalGroup getAnimalGroupByLevel(final int level) {
-        return animalGroupArray.get(level);
+    public AnimalGroup getAnimalGroupByLevel(final int level) {
+        return (level>=animalGroupArray.size()) ? null : animalGroupArray.get(level);
     }
 
-    AnimalDefinition getAnimalDefinition(final int animalId) {
+    public AnimalDefinition getAnimalDefinition(final int animalId) {
         return animalDefMap.get(animalId);
     }
 
-    AnimalDefinition getAnimalDefinitionByLevel(final int level) {
-        return animalDefArray.get(level);
+    public AnimalDefinition getAnimalDefinitionByLevel(final int level) {
+        return (level>=animalDefArray.size()) ? null : animalDefArray.get(level);
     }
 
     public AnimalDefinition getAnimalFromDistributionValue(final long value) {

@@ -10,7 +10,7 @@ public class AnimalDefinition {
     private final int stringResourceId;
     private final int squareDrawableId;
     private final int roundedDrawableId;
-    private final int animalGroupId;
+    private final int groupStringResourceId;
     private final long distributionFrom;
     private final long distributionTo;
     private final int foodRequired;
@@ -24,7 +24,7 @@ public class AnimalDefinition {
                      final int stringResourceId,
                      final int squareDrawableId,
                      final int roundedDrawableId,
-                     final int animalGroupId,
+                     final int groupStringResourceId,
                      final long distributionFrom,
                      final long distributionTo,
                      final int foodRequired) {
@@ -32,7 +32,7 @@ public class AnimalDefinition {
         this.stringResourceId = stringResourceId;
         this.squareDrawableId = squareDrawableId;
         this.roundedDrawableId = roundedDrawableId;
-        this.animalGroupId = animalGroupId;
+        this.groupStringResourceId = groupStringResourceId;
         this.distributionFrom = distributionFrom;
         this.distributionTo = distributionTo;
         this.foodRequired = foodRequired;

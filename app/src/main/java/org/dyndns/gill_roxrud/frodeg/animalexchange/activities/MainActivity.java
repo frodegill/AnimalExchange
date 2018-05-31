@@ -16,6 +16,7 @@ import android.widget.Toast;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.BuildConfig;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.inventory.InventoryActivity;
 import org.osmdroid.config.Configuration;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onInventoryButtonClicked(View v) {
+        ContextCompat.startActivity(this, new Intent(this, InventoryActivity.class), null);
     }
 
     public void onWalkButtonClicked(View v) {
