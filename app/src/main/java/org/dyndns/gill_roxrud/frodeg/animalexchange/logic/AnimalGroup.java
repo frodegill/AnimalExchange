@@ -10,7 +10,7 @@ public class AnimalGroup {
 
     private final int level;
     private final int stringResourceId;
-    private final List<Integer> animalList = new ArrayList<>();
+    private final List<AnimalDefinition> animalDefinitionList = new ArrayList<>();
 
     public AnimalGroup(final int level,
                        final int stringResourceId) {
@@ -26,12 +26,12 @@ public class AnimalGroup {
         return ctx.getString(stringResourceId);
     }
 
-    public void addAnimal(final Integer animalId) {
-        animalList.add(animalId);
+    public void addAnimalDefinition(final AnimalDefinition animalDefinition) {
+        animalDefinitionList.add(animalDefinition);
     }
 
-    public List<Integer> getAnimalList() {
-        return animalList;
+    public List<AnimalDefinition> getAnimalDefinitionList() {
+        return animalDefinitionList;
     }
 
 }

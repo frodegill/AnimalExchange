@@ -3,14 +3,12 @@ package org.dyndns.gill_roxrud.frodeg.animalexchange.inventory;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.v7.widget.AppCompatImageView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
@@ -61,11 +59,9 @@ public class AnimalGroupAdapter extends BaseAdapter {
         TextView textView = v.findViewById(R.id.groupname);
         textView.setText(animalGroup.getName(context));
 
-        AnimalManager animalManager = GameState.getInstance().getAnimalManager();
         LinearLayout linearLayout = v.findViewById(R.id.animallist);
         linearLayout.removeAllViews();
-        for (Integer animalId : animalGroup.getAnimalList()) {
-            AnimalDefinition animalDefinition = animalManager.getAnimalDefinition(animalId);
+        for (AnimalDefinition animalDefinition : animalGroup.getAnimalDefinitionList()) {
             View animalRowView = inflater.inflate(R.layout.inventoryanimalrow, null);
 
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {

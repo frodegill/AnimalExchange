@@ -194,7 +194,7 @@ public class AnimalManager {
                                                           groupStringResourceId, distributionFrom, distributionTo, food);
         animalDefMap.put(animalStringResourceId, animalDef);
         animalDefArray.add(level, animalDef);
-        getAnimalGroup(groupStringResourceId).addAnimal(animalStringResourceId);
+        getAnimalGroup(groupStringResourceId).addAnimalDefinition(animalDef);
     }
 
     public AnimalGroup getAnimalGroup(final int groupStringResourceId) {
