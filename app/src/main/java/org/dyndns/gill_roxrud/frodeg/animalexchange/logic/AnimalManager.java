@@ -64,6 +64,10 @@ public class AnimalManager {
         addGroup(14, R.string.exoticanimals_gold);
     }
 
+    public static int getAnimalGroupCount() {
+        return 15;
+    }
+
     private void initializeAnimals() {
         addAnimalDefinition(0, R.string.cat, R.drawable.square_cat, R.drawable.rounded_cat,
                   R.string.domesticanimals_bronze, 0L, 827834137L, 250);
@@ -179,6 +183,10 @@ public class AnimalManager {
                   R.string.exoticanimals_gold, 4294967293L,4294967294L,4867);
         addAnimalDefinition(56, R.string.red_panda, R.drawable.square_red_panda, R.drawable.rounded_red_panda,
                   R.string.exoticanimals_gold, 4294967295L,4294967295L,5000);
+    }
+
+    public static int getAnimalDefinitionCount() {
+        return 57;
     }
 
     private void addGroup(final int level, final int stringResourceId) {

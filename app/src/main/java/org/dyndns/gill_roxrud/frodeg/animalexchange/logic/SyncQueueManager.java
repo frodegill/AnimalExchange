@@ -3,6 +3,7 @@ package org.dyndns.gill_roxrud.frodeg.animalexchange.logic;
 
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.SparseArray;
 import android.widget.Toast;
 
 import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
@@ -16,6 +17,9 @@ import java.util.List;
 public class SyncQueueManager {
 
     private List<SyncQueueEvent> pendingEvents = new ArrayList<>();
+
+    private SparseArray<Animal> cachedFedAnimals[] = new SparseArray[AnimalManager.getAnimalDefinitionCount()];
+    private SparseArray<Animal> cachedHungryAnimals[] = new SparseArray[AnimalManager.getAnimalDefinitionCount()];
     private double cachedFood;
 
 
@@ -24,6 +28,11 @@ public class SyncQueueManager {
     }
 
     private void initialize() {
+        for (int i=0; i<AnimalManager.getAnimalDefinitionCount(); i++) {
+            cachedFedAnimals[i] = new SparseArray<>();
+            cachedHungryAnimals[i] = new SparseArray<>();
+        }
+
         AnimalExchangeDBHelper db = GameState.getInstance().getDB();
         cachedFood = db.GetDoubleProperty(AnimalExchangeDBHelper.PROPERTY_FOOD);
 
@@ -79,6 +88,13 @@ public class SyncQueueManager {
         addEventToFoodCache(eventType, v2);
 
         return true;
+    }
+
+    public int getAnimalCount(final int animalType) {
+        if (animalType<0 || animalType>=AnimalManager.getAnimalDefinitionCount()) {
+            return 0;
+        }
+        return cachedFedAnimals[animalType].size() + cachedHungryAnimals[animalType].size();
     }
 
     public double getFood() {

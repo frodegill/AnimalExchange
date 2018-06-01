@@ -17,6 +17,7 @@ import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalDefinition;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalGroup;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalManager;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.SyncQueueManager;
 
 import java.util.ArrayList;
 
@@ -55,6 +56,7 @@ public class AnimalGroupAdapter extends BaseAdapter {
 
         Context context = AnimalExchangeApplication.getContext();
         AnimalGroup animalGroup = (AnimalGroup) getItem(i);
+        SyncQueueManager syncQueueManager = GameState.getInstance().getSyncQueueManager();
 
         TextView textView = v.findViewById(R.id.groupname);
         textView.setText(animalGroup.getName(context));
@@ -74,7 +76,7 @@ public class AnimalGroupAdapter extends BaseAdapter {
             textView.setText(animalDefinition.getName(context));
 
             textView = animalRowView.findViewById(R.id.animalcount);
-            textView.setText("0");
+            textView.setText(Integer.toString(syncQueueManager.getAnimalCount(animalDefinition.getLevel())));
 
             linearLayout.addView(animalRowView);
         }
