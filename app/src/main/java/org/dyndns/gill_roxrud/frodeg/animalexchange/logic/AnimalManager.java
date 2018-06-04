@@ -213,12 +213,12 @@ public class AnimalManager {
         return (level>=animalGroupArray.size()) ? null : animalGroupArray.get(level);
     }
 
-    public AnimalDefinition getAnimalDefinition(final int animalId) {
-        return animalDefMap.get(animalId);
+    public AnimalDefinition getAnimalDefinition(final int animalDefResourceId) {
+        return animalDefMap.get(animalDefResourceId);
     }
 
-    public AnimalDefinition getAnimalDefinitionByLevel(final int level) {
-        return (level>=animalDefArray.size()) ? null : animalDefArray.get(level);
+    public AnimalDefinition getAnimalDefinitionByType(final int type) {
+        return (type>=animalDefArray.size()) ? null : animalDefArray.get(type);
     }
 
     public AnimalDefinition getAnimalFromDistributionValue(final long value) {
@@ -228,10 +228,6 @@ public class AnimalManager {
             }
         }
         return null;
-    }
-
-    public Animal createAnimalInstanceFromDistributionValue(final long value) {
-        return new Animal(getAnimalFromDistributionValue(value));
     }
 
     public Bitmap getHiddenAnimalGiftBitmap(final Context ctx, final int size) {

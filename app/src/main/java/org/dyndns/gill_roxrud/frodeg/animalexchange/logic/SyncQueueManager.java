@@ -18,8 +18,9 @@ public class SyncQueueManager {
 
     private List<SyncQueueEvent> pendingEvents = new ArrayList<>();
 
-    private SparseArray<Animal> cachedFedAnimals[] = new SparseArray[AnimalManager.getAnimalDefinitionCount()];
-    private SparseArray<Animal> cachedHungryAnimals[] = new SparseArray[AnimalManager.getAnimalDefinitionCount()];
+    private static final int FED = 0;
+    private static final int HUNGRY = 1;
+    private int animals[][] = new int[AnimalManager.getAnimalDefinitionCount()][2/*FED or HUNGRY*/];
     private double cachedFood;
 
 
@@ -29,8 +30,7 @@ public class SyncQueueManager {
 
     private void initialize() {
         for (int i=0; i<AnimalManager.getAnimalDefinitionCount(); i++) {
-            cachedFedAnimals[i] = new SparseArray<>();
-            cachedHungryAnimals[i] = new SparseArray<>();
+            animals[i][FED] = animals[i][HUNGRY] = 0;
         }
 
         AnimalExchangeDBHelper db = GameState.getInstance().getDB();
@@ -94,7 +94,7 @@ public class SyncQueueManager {
         if (animalType<0 || animalType>=AnimalManager.getAnimalDefinitionCount()) {
             return 0;
         }
-        return cachedFedAnimals[animalType].size() + cachedHungryAnimals[animalType].size();
+        return animals[animalType][FED] + animals[animalType][HUNGRY];
     }
 
     public double getFood() {

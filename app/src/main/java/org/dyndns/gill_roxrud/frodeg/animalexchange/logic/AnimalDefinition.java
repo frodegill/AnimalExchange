@@ -64,6 +64,10 @@ public class AnimalDefinition {
         return level;
     }
 
+    public int getFoodRequired() {
+        return foodRequired;
+    }
+
     public boolean containsDistributionValue(final long distributionValue) {
         return (distributionValue>=distributionFrom && distributionValue<=distributionTo);
     }

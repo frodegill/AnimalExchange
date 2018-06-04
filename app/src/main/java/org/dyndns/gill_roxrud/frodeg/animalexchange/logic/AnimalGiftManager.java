@@ -1,5 +1,6 @@
 package org.dyndns.gill_roxrud.frodeg.animalexchange.logic;
 
+import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
@@ -36,7 +37,7 @@ public class AnimalGiftManager {
     public AnimalGiftManager() {
     }
 
-    public Animal requestAnimalGiftT(final Point<Double> pos, final int day) throws InvalidPositionException {
+    public void requestAnimalGiftT(final Point<Double> pos, final int day) throws InvalidPositionException {
         Point<Double> offset = getOffset(day); //-0.5 to 0.5
         double horizontal_pos_rounded = pos.getX() + HALF_HOR_GIFT_DEGREE - HOR_GIFT_DEGREE*offset.getX();
         if (AnimalExchangeApplication.EAST<=horizontal_pos_rounded) {
@@ -62,19 +63,22 @@ public class AnimalGiftManager {
 
             int animalGiftKey = ToAnimalGiftKey(p.getX(), p.getY());
 
-            Animal animal = null;
+            AnimalDefinition animalDefinition = null;
             boolean successful;
             SQLiteDatabase dbInTransaction = db.StartTransaction();
             try {
-                successful = db.PersistAnimal(dbInTransaction, animalGiftKey, day);
+                successful = db.PersistAnimalGift(dbInTransaction, animalGiftKey, day);
 
                 if (successful) {
                     long distributionValue = AnimalManager.calculateAnimalDistributionValue(p.getX(), p.getY(), day);
-                    animal = gameState.getAnimalManager().createAnimalInstanceFromDistributionValue(distributionValue);
+                    animalDefinition = gameState.getAnimalManager().getAnimalFromDistributionValue(distributionValue);
                     successful = gameState.getSyncQueueManager().append(dbInTransaction,
                                                                         SyncQueueEvent.RECEIVE_GIFT,
-                                                                        animal.getLevel(),
+                                                                        animalDefinition.getLevel(),
                                                                         SyncQueueEvent.IGNORE_V2);
+
+                    Context context = AnimalExchangeApplication.getContext();
+                    Toast.makeText(context, "You got a " + animalDefinition.getName(context), Toast.LENGTH_LONG).show(); //TODO: i18n
                 }
 
                 if (successful) {
@@ -85,9 +89,7 @@ public class AnimalGiftManager {
                 Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
             db.EndTransaction(dbInTransaction, successful);
-            return successful ? animal : null;
         }
-        return null;
     }
 
     public boolean isAwardedT(final int key, final int day) {

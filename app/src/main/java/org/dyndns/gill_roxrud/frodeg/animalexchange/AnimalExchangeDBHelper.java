@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.Toast;
 
+import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalManager;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.SyncQueueEvent;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.SyncQueueManager;
 
@@ -19,14 +20,14 @@ import java.util.Set;
 
 public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
     private static final String DATABASE_NAME         = "AnimalExchange.db";
 
-    private static final String ANIMAL_TABLE_NAME     = "animal";
-    private static final String ANIMAL_COLUMN_ID      = "id";
-    private static final String ANIMAL_COLUMN_TYPE    = "type";
-    private static final String ANIMAL_COLUMN_FOOD    = "food"; //Food remaining until full
-    private static final String ANIMAL_COLUMN_PRICE   = "price"; //Sell price. NULL if Not For Sale
+    private static final String ANIMALS_TABLE_NAME            = "animal";
+    private static final String ANIMALS_COLUMN_TYPE           = "type";
+    private static final String ANIMALS_COLUMN_FED_COUNT      = "fed";
+    private static final String ANIMALS_COLUMN_HUNGRY_COUNT   = "hungry";
+    private static final String ANIMALS_COLUMN_FOR_SALE_COUNT = "forsale";
 
     private static final String ANIMALGIFT_TABLE_NAME = "animalgift";
     private static final String ANIMALGIFT_COLUMN_KEY = "key";
@@ -81,16 +82,19 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
             contentValues.put(PROPERTY_COLUMN_VALUE, 0.0);
             successful &= (-1 != db.insert(PROPERTY_TABLE_NAME, null, contentValues));
 
-            db.execSQL("CREATE TABLE "+ANIMALGIFT_TABLE_NAME+"("+ANIMALGIFT_COLUMN_KEY+" INTEGER NOT NULL, "
-                                                                +ANIMALGIFT_COLUMN_DAY+" INTEGER NOT NULL, "
-                      +"PRIMARY KEY ("+ANIMALGIFT_COLUMN_KEY+","+ANIMALGIFT_COLUMN_DAY+"))");
-
-            db.execSQL(String.format("CREATE TABLE %s (%s INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "+
+            db.execSQL(String.format("CREATE TABLE %s (%s INTEGER PRIMARY KEY NOT NULL, "+
                                                       "%s INTEGER NOT NULL, "+
-                                                      "%s REAL NOT NULL, "+
-                                                      "%s INTEGER NULL)",
-                    ANIMAL_TABLE_NAME,
-                    ANIMAL_COLUMN_ID, ANIMAL_COLUMN_TYPE, ANIMAL_COLUMN_FOOD, ANIMAL_COLUMN_PRICE));
+                                                      "%s INTEGER NOT NULL, "+
+                                                      "%s INTEGER NOT NULL)",
+                    ANIMALS_TABLE_NAME, ANIMALS_COLUMN_TYPE,
+                    ANIMALS_COLUMN_FED_COUNT, ANIMALS_COLUMN_HUNGRY_COUNT, ANIMALS_COLUMN_FOR_SALE_COUNT));
+
+            db.execSQL(String.format("CREATE TABLE %s (%s INTEGER NOT NULL, "+
+                                                      "%s INTEGER NOT NULL, "+
+                                                      "PRIMARY KEY (%s,%s))",
+                    ANIMALGIFT_TABLE_NAME,
+                    ANIMALGIFT_COLUMN_KEY, ANIMALGIFT_COLUMN_DAY,
+                    ANIMALGIFT_COLUMN_KEY, ANIMALGIFT_COLUMN_DAY));
 
             db.execSQL(String.format("CREATE TABLE %s (%s INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "+
                                                       "%s INTEGER NOT NULL, "+
@@ -98,7 +102,6 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
                                                       "%s REAL NOT NULL)",
                     SYNCQUEUE_TABLE_NAME,
                     SYNCQUEUE_COLUMN_ID, SYNCQUEUE_COLUMN_TYPE, SYNCQUEUE_COLUMN_VALUE1, SYNCQUEUE_COLUMN_VALUE2));
-
         } catch (SQLException e) {
             successful = false;
             Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -117,9 +120,12 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
 
         try {
             if (oldVersion < 2) {
-                db.execSQL("CREATE TABLE "+ANIMALGIFT_TABLE_NAME+"("+ANIMALGIFT_COLUMN_KEY+" INTEGER NOT NULL, "
-                                                                    +ANIMALGIFT_COLUMN_DAY+" INTEGER NOT NULL, "
-                          +"PRIMARY KEY ("+ANIMALGIFT_COLUMN_KEY+","+ANIMALGIFT_COLUMN_DAY+"))");
+                db.execSQL(String.format("CREATE TABLE %s (%s INTEGER NOT NULL, "+
+                                                          "%s INTEGER NOT NULL, "+
+                                                          "PRIMARY KEY (%s,%s))",
+                        ANIMALGIFT_TABLE_NAME,
+                        ANIMALGIFT_COLUMN_KEY, ANIMALGIFT_COLUMN_DAY,
+                        ANIMALGIFT_COLUMN_KEY, ANIMALGIFT_COLUMN_DAY));
             }
 
             if (oldVersion < 3) {
@@ -130,12 +136,10 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
             }
 
             if (oldVersion < 4) {
-                db.execSQL(String.format("CREATE TABLE %s (%s INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "+
-                                                          "%s INTEGER NOT NULL, "+
-                                                          "%s REAL NOT NULL, "+
-                                                          "%s INTEGER NULL)",
-                        ANIMAL_TABLE_NAME,
-                        ANIMAL_COLUMN_ID, ANIMAL_COLUMN_TYPE, ANIMAL_COLUMN_FOOD, ANIMAL_COLUMN_PRICE));
+                db.execSQL("CREATE TABLE animal (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "+
+                                               "type INTEGER NOT NULL, "+
+                                               "food REAL NOT NULL, "+
+                                               "price INTEGER NULL)");
             }
 
             if (oldVersion < 5) {
@@ -145,6 +149,26 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
                                                           "%s REAL NOT NULL)",
                         SYNCQUEUE_TABLE_NAME,
                         SYNCQUEUE_COLUMN_ID, SYNCQUEUE_COLUMN_TYPE, SYNCQUEUE_COLUMN_VALUE1, SYNCQUEUE_COLUMN_VALUE2));
+            }
+
+            if (oldVersion < 6) {
+                db.execSQL("DROP TABLE animal");
+
+                db.execSQL(String.format("CREATE TABLE %s (%s INTEGER PRIMARY KEY NOT NULL, "+
+                                                          "%s INTEGER NOT NULL, "+
+                                                          "%s INTEGER NOT NULL, "+
+                                                          "%s INTEGER NOT NULL)",
+                        ANIMALS_TABLE_NAME, ANIMALS_COLUMN_TYPE,
+                        ANIMALS_COLUMN_FED_COUNT, ANIMALS_COLUMN_HUNGRY_COUNT, ANIMALS_COLUMN_FOR_SALE_COUNT));
+
+                ContentValues contentValues = new ContentValues();
+                for (int i=0; i< AnimalManager.getAnimalDefinitionCount(); i++) {
+                    contentValues.put(ANIMALS_COLUMN_TYPE, i);
+                    contentValues.put(ANIMALS_COLUMN_FED_COUNT, 0);
+                    contentValues.put(ANIMALS_COLUMN_HUNGRY_COUNT, 0);
+                    contentValues.put(ANIMALS_COLUMN_FOR_SALE_COUNT, 0);
+                    successful &= (-1 != db.insert(ANIMALS_TABLE_NAME, null, contentValues));
+                }
             }
         } catch (SQLException e) {
             successful = false;
@@ -186,7 +210,7 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
         return successful;
     }
 
-    public boolean PersistAnimal(final SQLiteDatabase dbInTransaction, final int giftKey, final int day) {
+    public boolean PersistAnimalGift(final SQLiteDatabase dbInTransaction, final int giftKey, final int day) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(ANIMALGIFT_COLUMN_KEY, giftKey);
         contentValues.put(ANIMALGIFT_COLUMN_DAY, day);
