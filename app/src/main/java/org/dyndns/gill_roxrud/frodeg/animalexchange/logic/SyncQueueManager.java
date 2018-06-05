@@ -103,8 +103,17 @@ public class SyncQueueManager {
 
     private void addEventToFoodCache(final int eventType, final double v2) {
         switch (eventType) {
-            case SyncQueueEvent.RECEIVE_FOOD: cachedFood += v2; break;
-            case SyncQueueEvent.FEED_ANIMAL:  cachedFood -= v2; break;
+            case SyncQueueEvent.RECEIVE_FOOD: {
+                cachedFood += v2;
+                break;
+            }
+
+            case SyncQueueEvent.FEED_ANIMAL: {
+                AnimalDefinition animalDef = GameState.getInstance().getAnimalManager().getAnimalDefinitionByType(eventType);
+                cachedFood -= animalDef.getFoodRequired();
+                break;
+            }
+
             default: break;
         }
     }
