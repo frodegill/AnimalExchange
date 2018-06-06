@@ -1,9 +1,7 @@
 package org.dyndns.gill_roxrud.frodeg.animalexchange.logic;
 
-
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.SparseArray;
 import android.widget.Toast;
 
 import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
@@ -18,9 +16,10 @@ public class SyncQueueManager {
 
     private List<SyncQueueEvent> pendingEvents = new ArrayList<>();
 
-    private static final int FED = 0;
-    private static final int HUNGRY = 1;
-    private int animals[][] = new int[AnimalManager.getAnimalDefinitionCount()][2/*FED or HUNGRY*/];
+    public static final int FED = 0;
+    public static final int HUNGRY = 1;
+    public static final int FOR_SALE = 2;
+    private int animals[][] = new int[AnimalManager.getAnimalDefinitionCount()][3/*FED, HUNGRY and FOR_SALE*/];
     private double cachedFood;
 
 
@@ -29,11 +28,8 @@ public class SyncQueueManager {
     }
 
     private void initialize() {
-        for (int i=0; i<AnimalManager.getAnimalDefinitionCount(); i++) {
-            animals[i][FED] = animals[i][HUNGRY] = 0;
-        }
-
         AnimalExchangeDBHelper db = GameState.getInstance().getDB();
+        db.initializeAnimalCache(animals);
         cachedFood = db.GetDoubleProperty(AnimalExchangeDBHelper.PROPERTY_FOOD);
 
         pendingEvents = db.getSyncQueue();

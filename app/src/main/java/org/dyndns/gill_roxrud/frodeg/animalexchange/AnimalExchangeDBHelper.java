@@ -193,6 +193,40 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
         db.endTransaction();
     }
 
+    public void initializeAnimalCache(final int animals[][]) {
+        for (int i=0; i<AnimalManager.getAnimalDefinitionCount(); i++) {
+            animals[i][SyncQueueManager.FED] = animals[i][SyncQueueManager.HUNGRY]
+                                             = animals[i][SyncQueueManager.FOR_SALE] = 0;
+        }
+
+        Cursor cursor = null;
+        try {
+            cursor = this.getReadableDatabase()
+                    .rawQuery("SELECT " + ANIMALS_COLUMN_TYPE + ", "
+                                            + ANIMALS_COLUMN_FED_COUNT + ", "
+                                            + ANIMALS_COLUMN_HUNGRY_COUNT + ", "
+                                            + ANIMALS_COLUMN_FOR_SALE_COUNT
+                                    + " FROM " + ANIMALS_TABLE_NAME,
+                            null);
+            if (cursor.moveToFirst()) {
+                while (!cursor.isAfterLast()) {
+                    int type = cursor.getInt(0);
+                    if (type>=0 && type<AnimalManager.getAnimalDefinitionCount()) {
+                        animals[type][SyncQueueManager.FED] = cursor.getInt(1);
+                        animals[type][SyncQueueManager.HUNGRY] = cursor.getInt(2);
+                        animals[type][SyncQueueManager.FOR_SALE] = cursor.getInt(3);
+                    }
+                    cursor.moveToNext();
+                }
+            }
+        }
+        finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
     private boolean PersistFoodT(final double food) {
         boolean successful = true;
         SQLiteDatabase dbInTransaction = StartTransaction();
