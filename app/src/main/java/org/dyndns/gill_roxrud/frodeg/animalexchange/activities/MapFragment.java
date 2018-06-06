@@ -81,28 +81,17 @@ public class MapFragment extends Fragment implements LocationListener, MapListen
         mapView.getOverlays().add(new ScaleBarOverlay(mapView));
 
         setHasOptionsMenu(true);
+
+        GameState.getInstance().loadPosition(mapView);
+        EnableLocationUpdates();
     }
 
     @Override
     public void onPause() {
-        GameState gameState = GameState.getInstance();
-        AnimalExchangeDBHelper db = gameState.getDB();
-
-        boolean successful = true;
-        SQLiteDatabase dbInTransaction = db.StartTransaction();
-        try {
-            db.SetIntProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_X_POS, mapView.getScrollX());
-            db.SetIntProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_Y_POS, mapView.getScrollY());
-            db.SetDoubleProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_ZOOM_LEVEL, mapView.getZoomLevelDouble());
-
-        } catch (SQLException e) {
-            successful = false;
-            Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-        db.EndTransaction(dbInTransaction, successful);
-
+        GameState.getInstance().savePositionT(mapView);
         super.onPause();
         mapView.onPause();
+        mapView.setUseDataConnection(false);
         DisableLocationUpdates();
     }
 
@@ -116,13 +105,9 @@ public class MapFragment extends Fragment implements LocationListener, MapListen
     public void onResume() {
         super.onResume();
         mapView.onResume();
-
         GameState gameState = GameState.getInstance();
-        AnimalExchangeDBHelper db = gameState.getDB();
-        mapView.getController().setZoom(db.GetDoubleProperty(AnimalExchangeDBHelper.PROPERTY_ZOOM_LEVEL));
-        mapView.scrollTo(db.GetIntProperty(AnimalExchangeDBHelper.PROPERTY_X_POS), db.GetIntProperty(AnimalExchangeDBHelper.PROPERTY_Y_POS));
+        gameState.loadPosition(mapView);
         mapView.setUseDataConnection(gameState.getUseDataConnection());
-
         EnableLocationUpdates();
     }
 

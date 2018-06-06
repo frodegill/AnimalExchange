@@ -1,11 +1,15 @@
 package org.dyndns.gill_roxrud.frodeg.animalexchange;
 
 import android.content.Context;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.widget.Toast;
 
 import org.dyndns.gill_roxrud.frodeg.animalexchange.activities.MapFragment;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalGiftManager;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalManager;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.SyncQueueManager;
+import org.osmdroid.views.MapView;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -63,6 +67,26 @@ public class GameState {
 
     public Point<Double> getCurrentPos() {
         return currentPos;
+    }
+
+    public void savePositionT(final MapView mapView) {
+        boolean successful = true;
+        SQLiteDatabase dbInTransaction = db.StartTransaction();
+        try {
+            db.SetIntProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_X_POS, mapView.getScrollX());
+            db.SetIntProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_Y_POS, mapView.getScrollY());
+            db.SetDoubleProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_ZOOM_LEVEL, mapView.getZoomLevelDouble());
+        } catch (SQLException e) {
+            successful = false;
+            Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+        db.EndTransaction(dbInTransaction, successful);
+    }
+
+    public void loadPosition(final MapView mapView) {
+        mapView.getController().setZoom(db.GetDoubleProperty(AnimalExchangeDBHelper.PROPERTY_ZOOM_LEVEL));
+        mapView.scrollTo(db.GetIntProperty(AnimalExchangeDBHelper.PROPERTY_X_POS),
+                         db.GetIntProperty(AnimalExchangeDBHelper.PROPERTY_Y_POS));
     }
 
     public void onPositionChangedT(MapFragment mapFragment, double x_pos, double y_pos) {
