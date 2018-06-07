@@ -76,7 +76,10 @@ public class AnimalGroupAdapter extends BaseAdapter {
             textView.setText(animalDefinition.getName(context));
 
             textView = animalRowView.findViewById(R.id.animalcount);
-            textView.setText(Integer.toString(syncQueueManager.getAnimalCount(animalDefinition.getLevel())));
+            int count[] = syncQueueManager.getAnimalCount(animalDefinition.getLevel());
+            textView.setText(Integer.toString(count[SyncQueueManager.FED]) +
+                             " + " + Integer.toString(count[SyncQueueManager.HUNGRY]) +
+                             " (" + Integer.toString(count[SyncQueueManager.FOR_SALE]) + ")");
 
             linearLayout.addView(animalRowView);
         }

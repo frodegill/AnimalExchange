@@ -36,7 +36,7 @@ public class SyncQueueManager {
         pendingEvents = db.getSyncQueue();
 
         for (SyncQueueEvent event : pendingEvents) {
-            updateCounters(event.getEventType(), event.getValue2());
+            updateCounters(event.getEventType(), event.getValue1(), event.getValue2());
         }
     }
 
@@ -81,24 +81,27 @@ public class SyncQueueManager {
             pendingEvents.add(newEvent);
         }
 
-        updateCounters(eventType, v2);
+        updateCounters(eventType, v1, v2);
 
         return true;
     }
 
-    public int getAnimalCount(final int animalType) {
-        if (animalType<0 || animalType>=AnimalManager.getAnimalDefinitionCount()) {
-            return 0;
+    public int[] getAnimalCount(final int animalType) {
+        int[] count = new int[3];
+        if (animalType>=0 && animalType<AnimalManager.getAnimalDefinitionCount()) {
+            count[FED] = animals[animalType][FED];
+            count[HUNGRY] = animals[animalType][HUNGRY];
+            count[FOR_SALE] = animals[animalType][FOR_SALE];
         }
-        return animals[animalType][FED] + animals[animalType][HUNGRY];
+        return count;
     }
 
     public double getFood() {
         return cachedFood;
     }
 
-    private void updateCounters(final int v1, final double v2) {
-        switch (v1) {
+    private void updateCounters(final int eventType, final int v1, final double v2) {
+        switch (eventType) {
             case SyncQueueEvent.RECEIVE_GIFT: {
                 animals[v1][HUNGRY]++;
                 break;
