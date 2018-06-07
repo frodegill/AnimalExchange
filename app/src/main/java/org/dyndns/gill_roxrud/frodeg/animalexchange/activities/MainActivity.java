@@ -17,6 +17,7 @@ import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.BuildConfig;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.inventory.InventoryActivity;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.walk.MapActivity;
 import org.osmdroid.config.Configuration;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package org.dyndns.gill_roxrud.frodeg.animalexchange.activities;
+package org.dyndns.gill_roxrud.frodeg.animalexchange.walk;
 
 import android.Manifest;
 import android.content.Context;
@@ -22,8 +22,8 @@ import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeDBHelper;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.SyncQueueManager;
-import org.dyndns.gill_roxrud.frodeg.animalexchange.overlays.AnimalGiftOverlay;
-import org.dyndns.gill_roxrud.frodeg.animalexchange.overlays.MyLocationOverlay;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.walk.overlays.AnimalGiftOverlay;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.walk.overlays.MyLocationOverlay;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;

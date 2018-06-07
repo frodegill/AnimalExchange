@@ -1,14 +1,15 @@
 package org.dyndns.gill_roxrud.frodeg.animalexchange;
 
-import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
 
-import org.dyndns.gill_roxrud.frodeg.animalexchange.activities.MapFragment;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.walk.InvalidPositionException;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.walk.MapFragment;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalGiftManager;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalManager;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.SyncQueueManager;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.walk.Point;
 import org.osmdroid.views.MapView;
 
 import java.util.Calendar;

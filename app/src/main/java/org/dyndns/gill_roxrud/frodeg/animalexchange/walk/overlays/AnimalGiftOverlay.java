@@ -1,4 +1,4 @@
-package org.dyndns.gill_roxrud.frodeg.animalexchange.overlays;
+package org.dyndns.gill_roxrud.frodeg.animalexchange.walk.overlays;
 
 import android.graphics.*;
 import android.graphics.Point;
@@ -7,6 +7,7 @@ import org.dyndns.gill_roxrud.frodeg.animalexchange.*;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalDefinition;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalGiftManager;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalManager;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.walk.InvalidPositionException;
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;

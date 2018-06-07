@@ -1,11 +1,11 @@
-package org.dyndns.gill_roxrud.frodeg.animalexchange.overlays;
+package org.dyndns.gill_roxrud.frodeg.animalexchange.walk.overlays;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
 import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
-import org.dyndns.gill_roxrud.frodeg.animalexchange.Point;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.walk.Point;
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;

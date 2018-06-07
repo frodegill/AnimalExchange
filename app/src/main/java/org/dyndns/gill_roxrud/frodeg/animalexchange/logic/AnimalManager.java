@@ -8,7 +8,7 @@ import android.util.SparseArray;
 
 import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
-import org.dyndns.gill_roxrud.frodeg.animalexchange.Point;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.walk.Point;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
 
 import java.security.MessageDigest;

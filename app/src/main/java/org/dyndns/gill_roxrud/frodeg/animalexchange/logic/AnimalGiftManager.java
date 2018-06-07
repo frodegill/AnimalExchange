@@ -8,8 +8,8 @@ import android.widget.Toast;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeDBHelper;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
-import org.dyndns.gill_roxrud.frodeg.animalexchange.InvalidPositionException;
-import org.dyndns.gill_roxrud.frodeg.animalexchange.Point;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.walk.InvalidPositionException;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.walk.Point;
 import org.osmdroid.util.GeoPoint;
 
 import java.util.HashSet;

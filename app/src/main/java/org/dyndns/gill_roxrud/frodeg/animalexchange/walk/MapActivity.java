@@ -1,4 +1,4 @@
-package org.dyndns.gill_roxrud.frodeg.animalexchange.activities;
+package org.dyndns.gill_roxrud.frodeg.animalexchange.walk;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.walk.MapFragment;
 import org.osmdroid.config.Configuration;
 
 
