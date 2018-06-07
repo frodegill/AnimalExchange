@@ -24,10 +24,10 @@ public class SyncQueueEvent {
     public static final int REQUEST_SELL_ANIMALGROUP   = 70; //V1=animalgrouptype
     public static final int CONFIRM_SELL_ANIMALGROUP   = 71; //V1=animalgrouptype, V2=price
 
-    public static final int REQUEST_BUY_FOOD           = 90; //(v2=100.0)
-    public static final int CONFIRM_BUY_FOOD           = 91;
-    public static final int REQUEST_SELL_FOOD          = 92; //(v2=100.0)
-    public static final int CONFIRM_SELL_FOOD          = 93;
+    public static final int REQUEST_BUY_FOOD           = 90; //v1=100
+    public static final int CONFIRM_BUY_FOOD           = 91; //v1=100, v2=price
+    public static final int REQUEST_SELL_FOOD          = 92; //v1=100
+    public static final int CONFIRM_SELL_FOOD          = 93; //v1=100, v2=price
 
     private long id;
     private int eventType;

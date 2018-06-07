@@ -21,6 +21,7 @@ public class SyncQueueManager {
     public static final int FOR_SALE = 2;
     private int animals[][] = new int[AnimalManager.getAnimalDefinitionCount()][3/*FED, HUNGRY and FOR_SALE*/];
     private double cachedFood;
+    private double money;
 
 
     public SyncQueueManager() {
@@ -34,9 +35,8 @@ public class SyncQueueManager {
 
         pendingEvents = db.getSyncQueue();
 
-        //Update food cache
         for (SyncQueueEvent event : pendingEvents) {
-            addEventToFoodCache(event.getEventType(), event.getValue2());
+            updateCounters(event.getEventType(), event.getValue2());
         }
     }
 
@@ -81,7 +81,7 @@ public class SyncQueueManager {
             pendingEvents.add(newEvent);
         }
 
-        addEventToFoodCache(eventType, v2);
+        updateCounters(eventType, v2);
 
         return true;
     }
@@ -97,19 +97,68 @@ public class SyncQueueManager {
         return cachedFood;
     }
 
-    private void addEventToFoodCache(final int eventType, final double v2) {
-        switch (eventType) {
+    private void updateCounters(final int v1, final double v2) {
+        switch (v1) {
+            case SyncQueueEvent.RECEIVE_GIFT: {
+                animals[v1][HUNGRY]++;
+                break;
+            }
+
             case SyncQueueEvent.RECEIVE_FOOD: {
                 cachedFood += v2;
                 break;
             }
 
             case SyncQueueEvent.FEED_ANIMAL: {
-                AnimalDefinition animalDef = GameState.getInstance().getAnimalManager().getAnimalDefinitionByType(eventType);
+                AnimalDefinition animalDef = GameState.getInstance().getAnimalManager().getAnimalDefinitionByType(v1);
                 cachedFood -= animalDef.getFoodRequired();
+                animals[v1][HUNGRY]--;
+                animals[v1][FED]++;
                 break;
             }
 
+            case SyncQueueEvent.CONFIRM_BUY_ANIMAL: {
+                animals[v1][FED]++;
+                money -= v2;
+                break;
+            }
+
+            case SyncQueueEvent.CONFIRM_SELL_ANIMAL: {
+                animals[v1][FED]--;
+                money += v2;
+                break;
+            }
+
+            case SyncQueueEvent.CONFIRM_SELL_ANIMALGROUP: {
+                AnimalGroup animalGroup = GameState.getInstance().getAnimalManager().getAnimalGroupByLevel(v1);
+                for (AnimalDefinition animal : animalGroup.getAnimalDefinitionList()) {
+                    animals[animal.getLevel()][FED]--;
+                }
+                money += v2;
+                break;
+            }
+
+            case SyncQueueEvent.CONFIRM_BUY_FOOD: {
+                cachedFood += v1;
+                money -= v2;
+                break;
+            }
+
+            case SyncQueueEvent.CONFIRM_SELL_FOOD: {
+                cachedFood -= v1;
+                money += v2;
+                break;
+            }
+
+            case SyncQueueEvent.REQUEST_BUY_ANIMAL:
+            case SyncQueueEvent.CANCEL_BUY_ANIMAL:
+            case SyncQueueEvent.CONFIRM_CANCEL_BUY_ANIMAL:
+            case SyncQueueEvent.REQUEST_SELL_ANIMAL:
+            case SyncQueueEvent.CANCEL_SELL_ANIMAL:
+            case SyncQueueEvent.CONFIRM_CANCEL_SELL_ANIMAL:
+            case SyncQueueEvent.REQUEST_SELL_ANIMALGROUP:
+            case SyncQueueEvent.REQUEST_BUY_FOOD:
+            case SyncQueueEvent.REQUEST_SELL_FOOD:
             default: break;
         }
     }
