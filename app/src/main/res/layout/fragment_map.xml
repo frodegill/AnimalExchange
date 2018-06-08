@@ -16,7 +16,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="start"
             android:layout_weight="50">
-            <TextView android:id="@+id/scoretext"
+            <TextView android:id="@+id/speedtext"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
@@ -35,7 +35,7 @@
             android:layout_height="match_parent"
             android:gravity="end"
             android:layout_weight="50">
-            <TextView android:id="@+id/bonustext"
+            <TextView android:id="@+id/foodtext"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"

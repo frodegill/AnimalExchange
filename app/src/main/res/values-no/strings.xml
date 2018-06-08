@@ -84,4 +84,6 @@
     <string name="panda">Panda</string>
     <string name="red_panda">Rød panda</string>
 
+    <string name="long_press_to_feed_animal">Trykk og hold for å mate dyr</string>
+
 </resources>

@@ -84,4 +84,6 @@
     <string name="panda">Panda</string>
     <string name="red_panda">Red panda</string>
 
+    <string name="long_press_to_feed_animal">Long-press to feed animal</string>
+
 </resources>
