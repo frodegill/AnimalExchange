@@ -2,7 +2,9 @@ package org.dyndns.gill_roxrud.frodeg.animalexchange.inventory;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,13 +18,12 @@ import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalDefinition;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalGroup;
-import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalManager;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.SyncQueueManager;
 
 import java.util.ArrayList;
 
 
-public class AnimalGroupAdapter extends BaseAdapter {
+public class AnimalGroupAdapter extends BaseAdapter implements View.OnLongClickListener {
 
     private final ArrayList<AnimalGroup> data;
     private static LayoutInflater inflater = null;
@@ -65,6 +66,7 @@ public class AnimalGroupAdapter extends BaseAdapter {
         linearLayout.removeAllViews();
         for (AnimalDefinition animalDefinition : animalGroup.getAnimalDefinitionList()) {
             View animalRowView = inflater.inflate(R.layout.inventoryanimalrow, null);
+            animalRowView.setTag(animalDefinition);
 
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
                 ImageView imageView = animalRowView.findViewById(R.id.animalimage);
@@ -81,9 +83,39 @@ public class AnimalGroupAdapter extends BaseAdapter {
                              " + " + Integer.toString(count[SyncQueueManager.HUNGRY]) +
                              " (" + Integer.toString(count[SyncQueueManager.FOR_SALE]) + ")");
 
+            animalRowView.setOnLongClickListener(this);
             linearLayout.addView(animalRowView);
         }
 
         return v;
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        final AnimalDefinition animalDefinition = (AnimalDefinition) v.getTag();
+        SyncQueueManager syncQueueManager = GameState.getInstance().getSyncQueueManager();
+        int[] animalCount = syncQueueManager.getAnimalCount(animalDefinition.getLevel());
+        if (animalDefinition.getFoodRequired() > GameState.getInstance().getSyncQueueManager().getFood() ||
+            0 >= animalCount[SyncQueueManager.HUNGRY]) {
+            return true;
+        }
+
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (DialogInterface.BUTTON_POSITIVE == which) {
+                    GameState.getInstance().getAnimalManager().feedAnimalT(animalDefinition.getLevel());
+                }
+            }
+        };
+
+        Context context = v.getContext();
+        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+        builder.setMessage(String.format(context.getString(R.string.ack_feed_animal), animalDefinition.getName(AnimalExchangeApplication.getContext())))
+                .setPositiveButton(R.string.yes, dialogClickListener)
+                .setNegativeButton(R.string.no, dialogClickListener)
+                .show();
+
+        return true;
     }
 }

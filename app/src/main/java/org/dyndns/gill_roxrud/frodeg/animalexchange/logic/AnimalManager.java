@@ -283,6 +283,11 @@ public class AnimalManager {
         return movementInfo;
     }
 
+    public boolean feedAnimalT(final int animalType) {
+        return GameState.getInstance().getSyncQueueManager()
+                .appendT(SyncQueueEvent.FEED_ANIMAL, animalType, SyncQueueEvent.IGNORE_V2);
+    }
+
     Point<Double> calculateAnimalOffset(final int day) {
         MessageDigest messageDigest = createMessageDigest();
         if (messageDigest == null) {

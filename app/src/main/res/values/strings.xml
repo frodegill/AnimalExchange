@@ -85,5 +85,9 @@
     <string name="red_panda">Red panda</string>
 
     <string name="long_press_to_feed_animal">Long-press to feed animal</string>
+    <string name="ack_feed_animal">Do you want to feed a %s?</string>
+
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
 </resources>

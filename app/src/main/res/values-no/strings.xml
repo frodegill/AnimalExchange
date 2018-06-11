@@ -85,5 +85,9 @@
     <string name="red_panda">Rød panda</string>
 
     <string name="long_press_to_feed_animal">Trykk og hold for å mate dyr</string>
+    <string name="ack_feed_animal">Vil du mate en %s?</string>
+
+    <string name="yes">Ja</string>
+    <string name="no">Nei</string>
 
 </resources>
