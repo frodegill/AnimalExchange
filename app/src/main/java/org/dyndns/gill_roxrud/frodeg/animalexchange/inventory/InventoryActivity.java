@@ -3,11 +3,13 @@ package org.dyndns.gill_roxrud.frodeg.animalexchange.inventory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalGroup;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalManager;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.SyncQueueManager;
 
 import java.util.ArrayList;
 
@@ -33,6 +35,15 @@ public class InventoryActivity extends AppCompatActivity {
             inventoryArrayList.add(animalGroup);
         }
         inventoryListViewAdapter.notifyDataSetChanged();
+
+        onFoodUpdated();
     }
 
+    public void onFoodUpdated() {
+        TextView view = findViewById(R.id.food);
+        if (view != null) {
+            SyncQueueManager syncQueueManager = GameState.getInstance().getSyncQueueManager();
+            view.setText(Integer.toString((int) syncQueueManager.getFood()));
+        }
+    }
 }

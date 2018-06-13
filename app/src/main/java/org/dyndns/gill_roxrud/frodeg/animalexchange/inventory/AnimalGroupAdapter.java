@@ -1,7 +1,5 @@
 package org.dyndns.gill_roxrud.frodeg.animalexchange.inventory;
 
-
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,11 +24,13 @@ import java.util.ArrayList;
 public class AnimalGroupAdapter extends BaseAdapter implements View.OnLongClickListener {
 
     private final ArrayList<AnimalGroup> data;
-    private static LayoutInflater inflater = null;
+    private final InventoryActivity activity;
+    private final LayoutInflater inflater;
 
-    public AnimalGroupAdapter(Activity activity, ArrayList<AnimalGroup> data) {
+    public AnimalGroupAdapter(InventoryActivity activity, ArrayList<AnimalGroup> data) {
         this.data = data;
-        inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.activity = activity;
+        inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
@@ -105,6 +105,8 @@ public class AnimalGroupAdapter extends BaseAdapter implements View.OnLongClickL
             public void onClick(DialogInterface dialog, int which) {
                 if (DialogInterface.BUTTON_POSITIVE == which) {
                     GameState.getInstance().getAnimalManager().feedAnimalT(animalDefinition.getLevel());
+                    notifyDataSetChanged();
+                    activity.onFoodUpdated();
                 }
             }
         };
