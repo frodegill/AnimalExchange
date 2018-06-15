@@ -17,6 +17,7 @@ import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.BuildConfig;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.inventory.InventoryActivity;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.ranking.RankingActivity;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.trade.TradeActivity;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.walk.MapActivity;
 import org.osmdroid.config.Configuration;
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onRankingButtonClicked(View v) {
+        ContextCompat.startActivity(this, new Intent(this, RankingActivity.class), null);
     }
 
     public void onProfileButtonClicked(View v) {
