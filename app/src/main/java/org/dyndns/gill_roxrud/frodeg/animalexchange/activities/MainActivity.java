@@ -17,6 +17,7 @@ import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.BuildConfig;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.R;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.inventory.InventoryActivity;
+import org.dyndns.gill_roxrud.frodeg.animalexchange.profile.ProfileActivity;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.ranking.RankingActivity;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.trade.TradeActivity;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.walk.MapActivity;
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onProfileButtonClicked(View v) {
+        ContextCompat.startActivity(this, new Intent(this, ProfileActivity.class), null);
     }
 
     public void onHelpButtonClicked(View v) {
