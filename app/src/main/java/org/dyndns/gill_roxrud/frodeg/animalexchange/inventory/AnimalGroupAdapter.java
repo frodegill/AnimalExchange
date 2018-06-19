@@ -79,9 +79,10 @@ public class AnimalGroupAdapter extends BaseAdapter implements View.OnLongClickL
 
             textView = animalRowView.findViewById(R.id.animalcount);
             int count[] = syncQueueManager.getAnimalCount(animalDefinition.getLevel());
-            textView.setText(Integer.toString(count[SyncQueueManager.FED]) +
-                             " + " + Integer.toString(count[SyncQueueManager.HUNGRY]) +
-                             " (" + Integer.toString(count[SyncQueueManager.FOR_SALE]) + ")");
+            textView.setText(String.format("%s + %s (%s)",
+                    Integer.toString(count[SyncQueueManager.FED]),
+                    Integer.toString(count[SyncQueueManager.HUNGRY]),
+                    Integer.toString(count[SyncQueueManager.FOR_SALE])));
 
             animalRowView.setOnLongClickListener(this);
             linearLayout.addView(animalRowView);

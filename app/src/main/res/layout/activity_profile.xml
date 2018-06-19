@@ -12,7 +12,7 @@
         android:baselineAligned="false">
         <LinearLayout
             android:orientation="horizontal"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:gravity="end"
             android:layout_weight="50">
@@ -20,7 +20,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
-                android:text="food: " />
+                android:text="@string/food" />
             <TextView android:id="@+id/food"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

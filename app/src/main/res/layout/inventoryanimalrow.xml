@@ -16,7 +16,8 @@
         android:maxHeight="20sp"
         android:maxWidth="20sp"
         android:paddingBottom="2sp"
-        android:paddingTop="2sp" />
+        android:paddingTop="2sp"
+        android:contentDescription="Image of animal" />
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/animalname"
