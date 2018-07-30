@@ -82,7 +82,7 @@ public class MapFragment extends Fragment implements LocationListener, MapListen
 
         setHasOptionsMenu(true);
 
-        GameState.getInstance().loadPosition(mapView);
+        GameState.getInstance().loadPosition(this, mapView);
         EnableLocationUpdates();
     }
 
@@ -106,7 +106,7 @@ public class MapFragment extends Fragment implements LocationListener, MapListen
         super.onResume();
         mapView.onResume();
         GameState gameState = GameState.getInstance();
-        gameState.loadPosition(mapView);
+        gameState.loadPosition(this, mapView);
         mapView.setUseDataConnection(gameState.getUseDataConnection());
         EnableLocationUpdates();
     }

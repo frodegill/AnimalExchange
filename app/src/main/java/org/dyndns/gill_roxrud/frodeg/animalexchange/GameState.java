@@ -10,6 +10,7 @@ import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalGiftManager;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.AnimalManager;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.logic.SyncQueueManager;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.walk.Point;
+import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.views.MapView;
 
 import java.util.Calendar;
@@ -71,31 +72,39 @@ public class GameState {
     }
 
     public void savePositionT(final MapView mapView) {
-        boolean successful = true;
-        SQLiteDatabase dbInTransaction = db.StartTransaction();
-        try {
-            db.SetIntProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_X_POS, mapView.getScrollX());
-            db.SetIntProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_Y_POS, mapView.getScrollY());
-            db.SetDoubleProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_ZOOM_LEVEL, mapView.getZoomLevelDouble());
-        } catch (SQLException e) {
-            successful = false;
-            Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        IGeoPoint center = mapView.getMapCenter();
+        double x = center.getLongitude();
+        double y = center.getLatitude();
+        if (0.0!=x && 0.0!=y) {
+            boolean successful = true;
+            SQLiteDatabase dbInTransaction = db.StartTransaction();
+            try {
+                db.SetDoubleProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_X_POS, x);
+                db.SetDoubleProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_Y_POS, y);
+                db.SetDoubleProperty(dbInTransaction, AnimalExchangeDBHelper.PROPERTY_ZOOM_LEVEL, mapView.getZoomLevelDouble());
+            } catch (SQLException e) {
+                successful = false;
+                Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+            db.EndTransaction(dbInTransaction, successful);
         }
-        db.EndTransaction(dbInTransaction, successful);
     }
 
-    public void loadPosition(final MapView mapView) {
-        mapView.getController().setZoom(db.GetDoubleProperty(AnimalExchangeDBHelper.PROPERTY_ZOOM_LEVEL));
-        mapView.scrollTo(db.GetIntProperty(AnimalExchangeDBHelper.PROPERTY_X_POS),
-                         db.GetIntProperty(AnimalExchangeDBHelper.PROPERTY_Y_POS));
+    public void loadPosition(final MapFragment mapFragment, final MapView mapView) {
+        double x = db.GetDoubleProperty(AnimalExchangeDBHelper.PROPERTY_X_POS);
+        double y = db.GetDoubleProperty(AnimalExchangeDBHelper.PROPERTY_Y_POS);
+        if (0.0!=x && 0.0!=y) {
+            mapView.getController().setZoom(db.GetDoubleProperty(AnimalExchangeDBHelper.PROPERTY_ZOOM_LEVEL));
+            onPositionChangedT(mapFragment, x, y);
+        }
     }
 
-    public void onPositionChangedT(MapFragment mapFragment, double x_pos, double y_pos) {
+    public void onPositionChangedT(final MapFragment mapFragment, double x_pos, double y_pos) {
         currentPos.set(x_pos, y_pos);
         try {
             //Two separate transactions, but that is OK. Failing one should not fail both.
             AnimalManager.MovementInfo movementInfo = animalManager.requestFoodT(currentPos); //Transaction #1
-            if (0.0<movementInfo.speed && AnimalExchangeApplication.MAX_ALLOWED_SPEED>=movementInfo.speed) {
+            if (AnimalExchangeApplication.MAX_ALLOWED_SPEED>=movementInfo.speed) {
                 animalGiftManager.requestAnimalGiftT(currentPos, getDay()); //Transaction #2
             }
 
