@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import org.dyndns.gill_roxrud.frodeg.animalexchange.AnimalExchangeApplication;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.GameState;
 import org.dyndns.gill_roxrud.frodeg.animalexchange.walk.Point;
 import org.osmdroid.api.IGeoPoint;
@@ -43,7 +44,10 @@ public class MyLocationOverlay extends Overlay {
         android.graphics.Point point = pj.toPixels(geoPoint, null, true);
 
         canvas.drawCircle(point.x, point.y, line_halfwidth*16, red);
-        canvas.drawCircle(point.x, point.y, line_halfwidth*4, black);
+
+        if (AnimalExchangeApplication.MAX_ALLOWED_SPEED >= GameState.getInstance().getCurrentSpeed()) {
+            canvas.drawCircle(point.x, point.y, line_halfwidth * 4, black);
+        }
     }
 
 }

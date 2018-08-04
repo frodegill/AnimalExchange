@@ -27,6 +27,7 @@ public class GameState {
     private static SyncQueueManager syncQueueManager;
 
     private final Point<Double> currentPos = new Point<>(AnimalExchangeApplication.EAST+1.0, AnimalExchangeApplication.NORTH+1.0);
+    private double currentSpeed = 0.0;
 
 
     private GameState() {
@@ -71,6 +72,10 @@ public class GameState {
         return currentPos;
     }
 
+    public double getCurrentSpeed() {
+        return currentSpeed;
+    }
+
     public void savePositionT(final MapView mapView) {
         IGeoPoint center = mapView.getMapCenter();
         double x = center.getLongitude();
@@ -104,6 +109,7 @@ public class GameState {
         try {
             //Two separate transactions, but that is OK. Failing one should not fail both.
             AnimalManager.MovementInfo movementInfo = animalManager.requestFoodT(currentPos); //Transaction #1
+            currentSpeed = movementInfo.speed;
             if (AnimalExchangeApplication.MAX_ALLOWED_SPEED>=movementInfo.speed) {
                 animalGiftManager.requestAnimalGiftT(currentPos, getDay()); //Transaction #2
             }
