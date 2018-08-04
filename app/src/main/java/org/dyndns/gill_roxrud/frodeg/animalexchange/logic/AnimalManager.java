@@ -329,8 +329,9 @@ public class AnimalManager {
         return getHash(messageDigest);
     }
 
-    public static boolean isHiddenAnimalGift(final long distributionValue) {
-        return ((distributionValue%5L)==0L);
+    public boolean isHiddenAnimalGift(final long distributionValue) {
+        return (distributionValue%5L)==0L &&
+               distributionValue>=animalDefArray.get(AnimalExchangeApplication.MINIMUM_HIDDEN_GIFT_LEVEL).getDistributionFrom();
     }
 
     private static MessageDigest createMessageDigest() {

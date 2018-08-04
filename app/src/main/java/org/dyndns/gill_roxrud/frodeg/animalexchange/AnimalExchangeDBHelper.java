@@ -20,14 +20,15 @@ import java.util.Set;
 
 public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 6;
-    private static final String DATABASE_NAME         = "AnimalExchange.db";
+    private static final int DATABASE_VERSION = 7;
+    private static final String DATABASE_NAME = "AnimalExchange.db";
 
     private static final String ANIMALS_TABLE_NAME            = "animal";
     private static final String ANIMALS_COLUMN_TYPE           = "type";
     private static final String ANIMALS_COLUMN_FED_COUNT      = "fed";
     private static final String ANIMALS_COLUMN_HUNGRY_COUNT   = "hungry";
     private static final String ANIMALS_COLUMN_FOR_SALE_COUNT = "forsale";
+    private static final String ANIMALS_COLUMN_SHOWN_ON_MAP   = "showonmap";
 
     private static final String ANIMALGIFT_TABLE_NAME = "animalgift";
     private static final String ANIMALGIFT_COLUMN_KEY = "key";
@@ -83,11 +84,23 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
             successful &= (-1 != db.insert(PROPERTY_TABLE_NAME, null, contentValues));
 
             db.execSQL(String.format("CREATE TABLE %s (%s INTEGER PRIMARY KEY NOT NULL, "+
-                                                      "%s INTEGER NOT NULL, "+
-                                                      "%s INTEGER NOT NULL, "+
-                                                      "%s INTEGER NOT NULL)",
+                                                      "%s INTEGER NOT NULL DEFAULT 0, "+
+                                                      "%s INTEGER NOT NULL DEFAULT 0, "+
+                                                      "%s INTEGER NOT NULL DEFAULT 0, "+
+                                                      "%s INTEGER NOT NULL DEFAULT 1)",
                     ANIMALS_TABLE_NAME, ANIMALS_COLUMN_TYPE,
-                    ANIMALS_COLUMN_FED_COUNT, ANIMALS_COLUMN_HUNGRY_COUNT, ANIMALS_COLUMN_FOR_SALE_COUNT));
+                    ANIMALS_COLUMN_FED_COUNT, ANIMALS_COLUMN_HUNGRY_COUNT, ANIMALS_COLUMN_FOR_SALE_COUNT,
+                    ANIMALS_COLUMN_SHOWN_ON_MAP));
+
+            contentValues = new ContentValues();
+            for (int i=0; i< AnimalManager.getAnimalDefinitionCount(); i++) {
+                contentValues.put(ANIMALS_COLUMN_TYPE, i);
+                contentValues.put(ANIMALS_COLUMN_FED_COUNT, 0);
+                contentValues.put(ANIMALS_COLUMN_HUNGRY_COUNT, 0);
+                contentValues.put(ANIMALS_COLUMN_FOR_SALE_COUNT, 0);
+                contentValues.put(ANIMALS_COLUMN_SHOWN_ON_MAP, 1);
+                successful &= (-1 != db.insert(ANIMALS_TABLE_NAME, null, contentValues));
+            }
 
             db.execSQL(String.format("CREATE TABLE %s (%s INTEGER NOT NULL, "+
                                                       "%s INTEGER NOT NULL, "+
@@ -170,6 +183,10 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
                     successful &= (-1 != db.insert(ANIMALS_TABLE_NAME, null, contentValues));
                 }
             }
+
+            if (oldVersion < 7) {
+                db.execSQL("ALTER TABLE animal ADD showonmap INTEGER NOT NULL DEFAULT 1");
+            }
         } catch (SQLException e) {
             successful = false;
             Toast.makeText(AnimalExchangeApplication.getContext(), "ERR: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -194,27 +211,31 @@ public final class AnimalExchangeDBHelper extends SQLiteOpenHelper {
     }
 
     public void initializeAnimalCache(final int animals[][]) {
-        for (int i=0; i<AnimalManager.getAnimalDefinitionCount(); i++) {
+        int animalDefinitionCount = AnimalManager.getAnimalDefinitionCount();
+        for (int i=0; i<animalDefinitionCount; i++) {
             animals[i][SyncQueueManager.FED] = animals[i][SyncQueueManager.HUNGRY]
                                              = animals[i][SyncQueueManager.FOR_SALE] = 0;
         }
 
+        AnimalManager animalManager = GameState.getInstance().getAnimalManager();
         Cursor cursor = null;
         try {
             cursor = this.getReadableDatabase()
                     .rawQuery("SELECT " + ANIMALS_COLUMN_TYPE + ", "
                                             + ANIMALS_COLUMN_FED_COUNT + ", "
                                             + ANIMALS_COLUMN_HUNGRY_COUNT + ", "
-                                            + ANIMALS_COLUMN_FOR_SALE_COUNT
+                                            + ANIMALS_COLUMN_FOR_SALE_COUNT + ", "
+                                            + ANIMALS_COLUMN_SHOWN_ON_MAP
                                     + " FROM " + ANIMALS_TABLE_NAME,
                             null);
             if (cursor.moveToFirst()) {
                 while (!cursor.isAfterLast()) {
                     int type = cursor.getInt(0);
-                    if (type>=0 && type<AnimalManager.getAnimalDefinitionCount()) {
+                    if (type>=0 && type<animalDefinitionCount) {
                         animals[type][SyncQueueManager.FED] = cursor.getInt(1);
                         animals[type][SyncQueueManager.HUNGRY] = cursor.getInt(2);
                         animals[type][SyncQueueManager.FOR_SALE] = cursor.getInt(3);
+                        animalManager.getAnimalDefinitionByType(type).setShowOnMap(cursor.getInt(4)!=0);
                     }
                     cursor.moveToNext();
                 }

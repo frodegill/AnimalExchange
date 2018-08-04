@@ -14,6 +14,7 @@ public class AnimalDefinition {
     private final long distributionFrom;
     private final long distributionTo;
     private final int foodRequired;
+    private boolean showOnMap;
 
     private Bitmap cachedRoundedBitmap = null;
     private int cachedRoundedBitmapSize = -1;
@@ -36,6 +37,7 @@ public class AnimalDefinition {
         this.distributionFrom = distributionFrom;
         this.distributionTo = distributionTo;
         this.foodRequired = foodRequired;
+        this.showOnMap = true;
     }
 
     public String getName(final Context ctx) {
@@ -68,6 +70,21 @@ public class AnimalDefinition {
         return foodRequired;
     }
 
+    public boolean getShowOnMap() {
+        return showOnMap;
+    }
+
+    public void setShowOnMap(final boolean showOnMap) {
+        this.showOnMap = showOnMap;
+    }
+
+    public long getDistributionFrom() {
+        return distributionFrom;
+    }
+
+    public long getDistributionTo() {
+        return distributionTo;
+    }
     public boolean containsDistributionValue(final long distributionValue) {
         return (distributionValue>=distributionFrom && distributionValue<=distributionTo);
     }

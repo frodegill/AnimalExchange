@@ -72,8 +72,12 @@ public class AnimalGiftOverlay extends Overlay {
 
                 long distributionValue = AnimalManager.calculateAnimalDistributionValue(x, y, day);
                 AnimalDefinition animalDef = animalManager.getAnimalFromDistributionValue(distributionValue);
+                if (!animalDef.getShowOnMap()) {
+                    continue;
+                }
+
                 Bitmap animalBitmap;
-                if (AnimalManager.isHiddenAnimalGift(distributionValue)) {
+                if (animalManager.isHiddenAnimalGift(distributionValue)) {
                     animalBitmap = animalManager.getHiddenAnimalGiftBitmap(AnimalExchangeApplication.getContext(), animalImageSize);
                 } else {
                     animalBitmap = animalDef.getRoundedBitmap(AnimalExchangeApplication.getContext(), animalImageSize);

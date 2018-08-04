@@ -12,6 +12,7 @@ public class AnimalExchangeApplication extends Application {
     public static final long  LOCATION_UPDATE_INTERVAL = 30L; //seconds
     public static final float LOCATION_UPDATE_DISTANCE = 25.0f; //meters
     public static final float MAX_ALLOWED_SPEED = 20.0f; //km/h
+    public static final int MINIMUM_HIDDEN_GIFT_LEVEL = 5;
 
     public static final double NORTH = 90.0; //degrees
     public static final double EAST = 180.0; //degrees
